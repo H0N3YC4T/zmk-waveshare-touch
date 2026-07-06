@@ -48,12 +48,25 @@
 #define UI_PAD 5
 #define BTN_RADIUS 14
 
-/* Views >= VIEW_HUB never idle-timeout (media is hub content; the trackpad is
- * entered from HOME but deliberately keeps the no-timeout behaviour). */
+/* Enum order carries no semantics -- per-view behaviour (grid, timeout, portrait
+ * handling, one-shot-mod policy) is declared in view_defs[] (touch_views.c). */
 enum ui_view {
     VIEW_NORMAL, VIEW_HOME, VIEW_SETTINGS,
     VIEW_HUB, VIEW_MEDIA, VIEW_FKEYS, VIEW_NUMPAD, VIEW_SYMBOLS, VIEW_MODIFIERS, VIEW_TRACKPAD,
+    VIEW_COUNT,
 };
+
+/* Everything navigation needs to know about a view, declared not implied. */
+struct view_def {
+    void (*build)(void);         /* renderer; NULL = nothing to draw (NORMAL) */
+    void (*on_tap)(int cell);    /* tap handler (cell = logical cell id) */
+    uint8_t rows, cols;          /* landscape grid */
+    const uint8_t *portrait_map; /* portrait tap pos -> logical cell; NULL = identity */
+    bool rearrange_2x3;          /* portrait: re-arrange the 2x3 grid to 3x2 */
+    bool idle_timeout;           /* return to NORMAL after TOUCH_TIMEOUT_MS idle */
+    bool keeps_mods;             /* armed one-shot mods survive entering this view */
+};
+extern const struct view_def view_defs[VIEW_COUNT];
 
 /* ----------------------------- shared state ------------------------------- */
 
@@ -69,12 +82,8 @@ extern uint8_t ui_rot;               /* 0..3 = 0/90/180/270 deg CW (touch_rotati
 static inline lv_coord_t scr_w(void) { return (ui_rot & 1) ? SCR_H : SCR_W; }
 static inline lv_coord_t scr_h(void) { return (ui_rot & 1) ? SCR_W : SCR_H; }
 
-/* Paginated key screens (tables in touch_views.c; cells in touch_draw.c). */
+/* Paginated key screens: the 7 key cells of a 3x3 page (touch_draw.c). */
 extern const int key_cells[KEYS_PER_PAGE];
-extern const uint32_t fkeys[12];
-extern const char *const fkey_lbls[12];
-extern const uint32_t symbols[32];
-extern const char *const sym_lbls[32];
 
 /* Portrait re-arrangement of the 2x3 screens (touch_draw.c). */
 extern const uint8_t p23_pos[6];

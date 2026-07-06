@@ -1,5 +1,6 @@
 /* Tap routing, view state, and the idle timeout for the touch UI. Owns the
- * full-screen overlay and the display-thread timer that drains taps. */
+ * full-screen overlay and the display-thread timer that drains taps. All per-view
+ * behaviour comes from view_defs[] (touch_views.c) -- this file only routes. */
 
 #include "touch_ui.h"
 
@@ -41,12 +42,22 @@ static int cell_from_coords(int sx, int sy) {
     return row * grid_cols + col;
 }
 
+/* Portrait tap position -> the logical cell id the handlers use (identity unless
+ * the view re-arranges its 2x3 grid and provides a map). */
+static int logical_cell(int cell) {
+    const uint8_t *map = view_defs[cur_view].portrait_map;
+    if (!(ui_rot & 1) || map == NULL || cell < 0 || cell > 5) {
+        return cell;
+    }
+    return map[cell];
+}
+
 void show_view(enum ui_view v) {
     cur_view = v;
     cur_page = 0;
-    /* Leaving the macro hub abandons any armed one-shot modifier, so it can't
-     * silently apply to normal typing later (e.g. armed CTRL -> a stray Ctrl+A). */
-    if (v < VIEW_HUB) {
+    /* Views that don't keep armed one-shot mods abandon them, so an armed mod
+     * can't silently apply to normal typing later (e.g. a stray Ctrl+A). */
+    if (!view_defs[v].keeps_mods) {
         pending_mods = 0;
     }
     if (v == VIEW_NORMAL) {
@@ -57,145 +68,6 @@ void show_view(enum ui_view v) {
     }
 }
 
-/* Nav + key handling shared by all paginated key screens. */
-static void handle_key_page(const uint32_t *keys, int n, int cell) {
-    int pages = (n + KEYS_PER_PAGE - 1) / KEYS_PER_PAGE;
-    if (cell == 1) {
-        if (cur_page == 0) {
-            show_view(VIEW_HUB);
-        } else {
-            cur_page--;
-            build_view(cur_view);
-        }
-        return;
-    }
-    if (cell == 7) {
-        if (pages > 1) {
-            cur_page = (cur_page + 1) % pages;
-            build_view(cur_view);
-        }
-        return;
-    }
-    for (int i = 0; i < KEYS_PER_PAGE; i++) {
-        if (key_cells[i] == cell) {
-            int idx = cur_page * KEYS_PER_PAGE + i;
-            if (idx < n) {
-                send_key(keys[idx]);
-            }
-            return;
-        }
-    }
-}
-
-static void handle_tap(int cell) {
-    last_tap_ms = k_uptime_get();
-
-    switch (cur_view) {
-    case VIEW_NORMAL:
-        show_view(VIEW_HOME);
-        break;
-    case VIEW_HOME:
-        if (cell <= 2) {
-            show_view(VIEW_NORMAL);
-        } else if (cell == 3) {
-            show_view(VIEW_TRACKPAD);
-        } else if (cell == 4) {
-            show_view(VIEW_SETTINGS);
-        } else {
-            show_view(VIEW_HUB);
-        }
-        break;
-    case VIEW_MEDIA:
-        switch (cell) {
-        case 0: fire_macro("touch_macro_0"); break;
-        case 1: show_view(VIEW_HUB); break; /* media is reached from the hub */
-        case 2: fire_macro("touch_macro_2"); break;
-        case 3: fire_macro("touch_macro_4"); break;
-        case 4: fire_macro("touch_macro_3"); break;
-        case 5: fire_macro("touch_macro_5"); break;
-        default: break;
-        }
-        break;
-    case VIEW_SETTINGS: /* 3x3; cells 6-8 are the readout row -> no-ops via default */
-        switch (cell) {
-        case 0: prospector_touchpad_sens_step(+1); build_view(VIEW_SETTINGS); break;
-        case 1: show_view(VIEW_HOME); break;
-        case 2: prospector_brightness_step(+BRIGHTNESS_STEP); build_view(VIEW_SETTINGS); break;
-        case 3: prospector_touchpad_sens_step(-1); build_view(VIEW_SETTINGS); break;
-        case 4: ui_rot = (ui_rot + 1) & 3; settings_apply_rotation(); break; /* +90deg CW */
-        case 5: prospector_brightness_step(-BRIGHTNESS_STEP); build_view(VIEW_SETTINGS); break;
-        default: break;
-        }
-        break;
-    case VIEW_HUB:
-        switch (cell) {
-        case 0: show_view(VIEW_FKEYS); break;
-        case 1: show_view(VIEW_HOME); break;
-        case 2: show_view(VIEW_NUMPAD); break;
-        case 3: show_view(VIEW_SYMBOLS); break;
-        case 4: show_view(VIEW_MEDIA); break;
-        case 5: show_view(VIEW_MODIFIERS); break;
-        default: break;
-        }
-        break;
-    case VIEW_FKEYS:
-        handle_key_page(fkeys, 12, cell);
-        break;
-    case VIEW_SYMBOLS:
-        handle_key_page(symbols, 32, cell);
-        break;
-    case VIEW_NUMPAD: {
-        /* 4x4; col 3 = operators. Index 12 (Back) is 0 and handled first, so the
-         * np[cell] guard only skips it -- every real key code is non-zero. */
-        static const uint32_t np[16] = {N7, N8, N9, PLUS,  N4, N5, N6, MINUS,
-                                        N1, N2, N3, STAR,  0,  N0, RET, FSLH};
-        if (cell == 12) {
-            show_view(VIEW_HUB);
-        } else if (cell >= 0 && cell <= 15 && np[cell]) {
-            send_key(np[cell]);
-        }
-        break;
-    }
-    case VIEW_MODIFIERS:
-        switch (cell) {
-        case 0: pending_mods ^= MOD_LCTL; build_view(VIEW_MODIFIERS); break;
-        case 1: show_view(VIEW_HUB); break;
-        case 2: pending_mods ^= MOD_LSFT; build_view(VIEW_MODIFIERS); break;
-        case 3: pending_mods ^= MOD_LALT; build_view(VIEW_MODIFIERS); break;
-        case 5: pending_mods ^= MOD_LGUI; build_view(VIEW_MODIFIERS); break;
-        default: break;
-        }
-        break;
-    case VIEW_TRACKPAD:
-        /* touch_input.c only forwards the corner-exit tap here; the trackpad is
-         * entered from HOME, so leave back to HOME. */
-        show_view(VIEW_HOME);
-        break;
-    default:
-        break;
-    }
-}
-
-/* Portrait 3x2 tap -> the 2x3 logical cell id the handlers use. Square grids,
- * settings, and the trackpad are identity (their layouts don't re-arrange). */
-static int logical_cell(int cell) {
-    if (!(ui_rot & 1) || cell < 0 || cell > 5) {
-        return cell;
-    }
-    switch (cur_view) {
-    case VIEW_HOME: { /* back spans row 0, keys spans row 2 */
-        static const uint8_t m[6] = {0, 0, 3, 4, 5, 5};
-        return m[cell];
-    }
-    case VIEW_MEDIA:
-    case VIEW_HUB:
-    case VIEW_MODIFIERS:
-        return p23_pos[cell];
-    default:
-        return cell;
-    }
-}
-
 /* Runs on the LVGL/display thread (lv_timer_handler). */
 static void ui_timer_cb(lv_timer_t *timer) {
     ARG_UNUSED(timer);
@@ -203,11 +75,11 @@ static void ui_timer_cb(lv_timer_t *timer) {
     int v = atomic_set(&pending_tap, 0);
     if (v & (1 << 20)) {
         int sx = (v >> 10) & 0x3FF, sy = v & 0x3FF;
-        handle_tap(logical_cell(cell_from_coords(sx, sy)));
+        last_tap_ms = k_uptime_get();
+        view_defs[cur_view].on_tap(logical_cell(cell_from_coords(sx, sy)));
     }
 
-    /* Idle timeout returns to Normal -- but NOT while inside the macro hub. */
-    if (cur_view != VIEW_NORMAL && cur_view < VIEW_HUB &&
+    if (view_defs[cur_view].idle_timeout &&
         (k_uptime_get() - last_tap_ms) > TOUCH_TIMEOUT_MS) {
         show_view(VIEW_NORMAL);
     }
