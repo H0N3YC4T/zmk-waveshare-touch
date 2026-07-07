@@ -12,7 +12,8 @@
  *  2. TRACKPAD: while the fork's MOUSE page is active
  *     (prospector_touchpad_active), gestures become mouse HID instead --
  *     drag = pointer, right-edge drag = scroll, 1 tap = left click,
- *     2 taps = right click, top-left corner tap = exit.
+ *     2 taps = right click, tap-then-hold-and-drag = drag-lock (left button
+ *     held for the duration), top-left corner tap = exit.
  *
  * Whole file is gated on the cst816s DT node, so with no node present this
  * compiles to nothing and the build stays green. Thread rule: behaviors and
@@ -40,6 +41,8 @@ LOG_MODULE_REGISTER(mk1_touch, LOG_LEVEL_INF);
  *   DRAG (main area)     -> pointer motion (commits once past the dead-zone).
  *   DRAG on the far-right -> scroll (that vertical strip is the scroll lane).
  *   1 TAP -> left click,  2 TAPS -> right click (resolved over TP_DTAP_MS).
+ *   TAP then HOLD-AND-DRAG (2nd touch within TP_DTAP_MS that moves instead of
+ *     releasing) -> drag-lock: left button held for the drag, released on lift.
  *   top-left corner TAP -> exit (the fork decides where to; currently HOME). */
 #define TP_CORNER_PX 40           /* top-left NxN screen corner tap = exit */
 #define TP_MOVE_DEADZONE_PX 8     /* travel this far commits a drag (else it's a tap) */
@@ -185,17 +188,23 @@ static K_WORK_DEFINE(touch_work, touch_fire);
 /* Pending click + accumulated scroll/motion, drained on the system workqueue. ALL
  * zmk_hid_/zmk_endpoint_ calls happen HERE, never in the input callback -- that runs
  * in driver context, and ZMK's HID reports have no cross-thread locking. */
-enum tp_mode { TP_PENDING, TP_MOTION, TP_SCROLL };
-static atomic_t tp_click = ATOMIC_INIT(0);  /* 0 / MB1 / MB2 */
+enum tp_mode { TP_PENDING, TP_MOTION, TP_SCROLL, TP_DRAG };
+static atomic_t tp_click = ATOMIC_INIT(0);    /* 0 / MB1 / MB2: one-shot click pulse */
+static atomic_t tp_drag_cmd = ATOMIC_INIT(0); /* 0 none / 1 press-and-hold MB1 / 2 release it */
 static atomic_t tp_scroll = ATOMIC_INIT(0); /* signed vertical wheel ticks pending */
 static atomic_t tp_dx = ATOMIC_INIT(0);     /* accumulated pointer deltas (raw px) */
 static atomic_t tp_dy = ATOMIC_INIT(0);
 static int32_t tp_start_sx, tp_start_sy;    /* touch-down screen coords */
 static int32_t tp_prev_sx, tp_prev_sy;      /* last sampled point while streaming motion */
 static int32_t tp_scroll_ref;               /* scroll-axis coord of the last emitted tick */
-static enum tp_mode tp_mode;                /* this touch: pending / moving / scrolling */
+static enum tp_mode tp_mode;                /* this touch: pending / moving / scrolling / drag */
 static bool tp_scroll_zone;                 /* touch started in the scroll lane */
 static bool tp_first_tap;                   /* a first tap is awaiting a possible second */
+/* Set at touch-down from tp_first_tap's value: this touch is the 2nd half of a
+ * tap-then-hold-and-drag gesture. If it releases quickly it's still just the
+ * right-click tap (unchanged); if it moves past the dead-zone first, the commit
+ * logic below sends it to TP_DRAG (held button) instead of TP_MOTION (bare move). */
+static bool tp_drag_candidate;
 static int32_t tp_carry_x, tp_carry_y;      /* x256 sub-pixel remainders (sens scaling) */
 static uint8_t tp_sens_level = TP_SENS_DEFAULT;
 
@@ -217,6 +226,18 @@ static void tp_work_handler(struct k_work *work) {
     int dy = atomic_set(&tp_dy, 0);
     int scroll = atomic_set(&tp_scroll, 0);
     int click = atomic_set(&tp_click, 0);
+    int drag_cmd = atomic_set(&tp_drag_cmd, 0);
+    if (drag_cmd == 1) {
+        /* Press-and-hold: unlike the click pulse below, no matching release call
+         * here -- the button bit stays set (zmk_hid's mouse buttons are stateful,
+         * not auto-cleared like the movement/scroll axes) across every following
+         * report until drag_cmd==2 explicitly clears it at finger-lift. */
+        zmk_hid_mouse_buttons_press(MB1);
+        zmk_endpoint_send_mouse_report();
+    } else if (drag_cmd == 2) {
+        zmk_hid_mouse_buttons_release(MB1);
+        zmk_endpoint_send_mouse_report();
+    }
     if (dx || dy) {
         zmk_hid_mouse_movement_set((int16_t)dx, (int16_t)dy);
         zmk_endpoint_send_mouse_report();
@@ -274,6 +295,19 @@ static void touch_cb(struct input_event *evt, void *user_data) {
             tp_mode = TP_PENDING;
             tp_scroll_zone = (tp_rot & 1) ? (tp_start_sy >= TP_SCROLL_ZONE)
                                           : (tp_start_sx >= TP_SCROLL_ZONE);
+            /* A first tap is still awaiting its pair -> this touch may become a
+             * drag-lock (see the dead-zone commit below). Doesn't touch
+             * tp_first_tap itself: a quick release here still resolves as the
+             * ordinary right-click tap, unchanged. Cancel the deferred single-
+             * click fallback right away though (not just at this touch's eventual
+             * release/commit) -- a second touch has begun, so that timer can
+             * never legitimately fire again, and leaving it armed would let it
+             * fire a stray left-click mid-hold if the user pauses here longer
+             * than TP_DTAP_MS before moving into a drag. */
+            tp_drag_candidate = tp_first_tap;
+            if (tp_drag_candidate) {
+                k_work_cancel_delayable(&tp_tap_work);
+            }
             tp_carry_x = 0;
             tp_carry_y = 0;
 #endif
@@ -302,6 +336,10 @@ static void touch_cb(struct input_event *evt, void *user_data) {
                         tp_first_tap = true;
                         k_work_reschedule(&tp_tap_work, K_MSEC(TP_DTAP_MS));
                     }
+                } else if (tp_mode == TP_DRAG) {
+                    /* Drag-lock ends on lift: release the held button. */
+                    atomic_set(&tp_drag_cmd, 2);
+                    k_work_submit(&tp_work);
                 }
                 break; /* trackpad mode owns the release; skip cell dispatch */
             }
@@ -331,19 +369,29 @@ static void touch_cb(struct input_event *evt, void *user_data) {
         int32_t sx = panel_to_screen_x(cur_x, cur_y);
         int32_t sy = panel_to_screen_y(cur_x, cur_y);
         if (tp_mode == TP_PENDING) {
-            /* Leaving the dead-zone commits the drag: scroll lane -> scroll, else move. */
+            /* Leaving the dead-zone commits the drag: scroll lane -> scroll; else,
+             * a tap-then-hold-and-drag candidate -> drag-lock (button held for the
+             * duration); else a bare move. */
             if (iabs32(sx - tp_start_sx) >= TP_MOVE_DEADZONE_PX ||
                 iabs32(sy - tp_start_sy) >= TP_MOVE_DEADZONE_PX) {
                 if (tp_scroll_zone) {
                     tp_mode = TP_SCROLL;
                     tp_scroll_ref = (tp_rot & 1) ? sx : sy;
+                } else if (tp_drag_candidate) {
+                    tp_first_tap = false; /* this touch is a drag now, not a tap */
+                    k_work_cancel_delayable(&tp_tap_work);
+                    tp_mode = TP_DRAG;
+                    tp_prev_sx = sx; /* stream from here; the dead-zone px are dropped */
+                    tp_prev_sy = sy;
+                    atomic_set(&tp_drag_cmd, 1);
+                    k_work_submit(&tp_work);
                 } else {
                     tp_mode = TP_MOTION;
                     tp_prev_sx = sx; /* stream from here; the dead-zone px are dropped */
                     tp_prev_sy = sy;
                 }
             }
-        } else if (tp_mode == TP_MOTION) {
+        } else if (tp_mode == TP_MOTION || tp_mode == TP_DRAG) {
             int dx = sx - tp_prev_sx;
             int dy = sy - tp_prev_sy;
             tp_prev_sx = sx;

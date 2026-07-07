@@ -12,6 +12,28 @@ needs a commit + push + pin bump there. Hardware: Seeed XIAO nRF52840 + Waveshar
 The CST816S gesture driver (`touch_input.c`) lives HERE now (adapter `src/`), moved in from
 the keyboard repo — both sides of every touch seam are in this repo.
 
+## Trackpad drag-lock (2026-07-08)
+
+**Tap-then-hold-and-drag** = drag-lock: left button held for the duration of the drag, released
+on lift. This is the standard trackpad "drag" gesture (tap once, then touch down again and hold
+while moving, rather than needing to hold the button the whole time). Mechanically it's a second
+touch inside the existing double-tap window (`TP_DTAP_MS`) that *moves* past the dead-zone
+instead of releasing quickly:
+- If the 2nd touch releases quickly (a normal tap) -> unchanged, still resolves as the right-click.
+- If it moves first -> commits to a new `TP_DRAG` mode instead of `TP_MOTION`: presses and holds
+  MB1 (`tp_drag_cmd` atomic, drained in `tp_work_handler`), then shares the exact same motion-
+  accumulation code as `TP_MOTION` (the `tp_mode == TP_MOTION || tp_mode == TP_DRAG` branch) --
+  the only difference is the held button. Release fires on finger-lift.
+- `tp_drag_candidate` is captured from `tp_first_tap`'s value at touch-down and doesn't touch
+  `tp_first_tap` itself, so the existing right-click-at-quick-release path is untouched.
+- The deferred single-tap-fallback timer (`tp_tap_work`) is cancelled as soon as this second touch
+  begins (not just at its eventual resolution) -- otherwise a user who taps, touches down again,
+  and *pauses* longer than `TP_DTAP_MS` before starting to move would get a stray left-click
+  fired mid-hold, underneath what's about to become a drag.
+- No new constants: reuses `TP_MOVE_DEADZONE_PX` (same tap-vs-drag threshold as a first touch)
+  and `TP_DTAP_MS` (same double-tap window). No positional constraint on the 2nd touch, matching
+  the existing double-tap-right-click (only timing gates it, not location).
+
 ## HOME menu: 6 discrete buttons + true numpad HID (2026-07-08)
 
 **HOME** dropped its two spanning buttons (back across the top row, keys across the bottom in
