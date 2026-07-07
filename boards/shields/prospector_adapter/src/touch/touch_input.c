@@ -65,10 +65,10 @@ LOG_MODULE_REGISTER(mk1_touch, LOG_LEVEL_INF);
 #define PANEL_H 280
 #define TOUCH_TAP_MAX_TRAVEL 24
 
-/* The OPERATOR screen renders rotated 90 deg CLOCKWISE vs the CST816S panel axes
- * (panel-X runs along the screen's vertical). Map raw panel (tx,ty) -> rendered
- * screen (sx,sy); the screen is 280 wide x 240 tall. If taps ever come out
- * left<->right mirrored, flip sx to (PANEL_H - ty). */
+/* Landscape screen dimensions (the "rot 0" calibrated baseline, 90 deg CW vs the
+ * CST816S panel axes -- panel-X runs along the screen's vertical). The 4-case
+ * panel_to_screen_x/y below generalise this for all four rotations; see the
+ * tp_rot comment above prospector_touch_set_orientation(). */
 #define SCREEN_W 280
 #define SCREEN_H 240
 /* UI orientation, set by the fork's rotate button: 0..3 = 0/90/180/270 deg CW.
@@ -79,8 +79,6 @@ LOG_MODULE_REGISTER(mk1_touch, LOG_LEVEL_INF);
  * here AND the middle entries of rot_to_panel[] in the fork. */
 static uint8_t tp_rot;
 void prospector_touch_set_orientation(int rot) { tp_rot = (uint8_t)(rot & 3); }
-static inline int32_t tp_scr_w(void) { return (tp_rot & 1) ? PANEL_W : PANEL_H; }
-static inline int32_t tp_scr_h(void) { return (tp_rot & 1) ? PANEL_H : PANEL_W; }
 static inline int32_t panel_to_screen_x(int32_t tx, int32_t ty) {
     switch (tp_rot) {
     case 1: return PANEL_W - tx;      /* portrait A */
@@ -120,7 +118,7 @@ static int32_t pending_sx, pending_sy;
 
 /* Implemented by the prospector fork when the on-screen touch UI is present:
  * given the RAW rendered-screen coords (sx,sy; 280x240) it maps them to a cell
- * per whichever screen's grid is showing (2x3, or 4x3 for the numpad), then
+ * per whichever screen's grid is showing (2x3, 3x3, or 4x4 for the numpad), then
  * navigates / fires and returns true if it consumed the tap. Weak default (no
  * fork UI) returns false, so we fall back to the fixed 2x3 macro grid below. */
 __weak bool prospector_touch_tap(int sx, int sy) {

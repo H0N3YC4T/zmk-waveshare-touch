@@ -7,8 +7,8 @@
  * two portraits come out swapped vs the touch on hardware, swap the middle entries
  * of rot_to_panel[] AND cases 1/3 in touch_input.c's transform.
  *
- * NOTE: the NORMAL status screen's widgets are laid out for landscape and are NOT
- * reflowed yet -- in portrait they render clipped. The touch UI is portrait-aware. */
+ * status_screen_reflow() (../status_screen.c) repositions the NORMAL screen's
+ * widgets per orientation; the touch UI (build_view) is portrait-aware too. */
 
 #include <zephyr/device.h>
 #include <zephyr/drivers/display.h>

@@ -92,7 +92,6 @@ extern const uint8_t p23_pos[6];
 
 /* touch_draw.c */
 void draw_cell(int row, int col, int w_cells, const char *text, uint32_t accent);
-void draw_cell_on(int row, int col, const char *text, uint32_t accent);
 void draw_cell_l(int lcell, const char *text, uint32_t accent);
 void draw_cell_on_l(int lcell, const char *text, uint32_t accent);
 void draw_key_page(const char *const *lbls, int n, int page);

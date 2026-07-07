@@ -47,16 +47,11 @@ void draw_cell(int row, int col, int w_cells, const char *text, uint32_t accent)
     draw_cell_impl(row, col, w_cells, text, accent, 80, false);
 }
 
-/* Armed/on state: solid accent fill, black text. */
-void draw_cell_on(int row, int col, const char *text, uint32_t accent) {
-    draw_cell_impl(row, col, 1, text, accent, 80, true);
-}
-
 /* 2x3-logical cell placement for both orientations. In portrait the six cells
  * re-arrange to 3 rows x 2 cols preserving pair order: top outer pair first, then
  * back beside the centre action, then the bottom outer pair. Same table maps a
- * portrait tap back to the logical cell id the handlers use (touch_nav.c). HOME
- * overrides this with row spans (touch_views.c). */
+ * portrait tap back to the logical cell id the handlers use (touch_nav.c). Used
+ * by every 2x3 view (HOME, HUB, MEDIA, MODIFIERS) via draw_cell_l. */
 const uint8_t p23_pos[6] = {0, 2, 1, 4, 3, 5}; /* portrait pos -> logical cell */
 
 static void draw_cell_l_impl(int lcell, const char *text, uint32_t accent, bool filled) {
