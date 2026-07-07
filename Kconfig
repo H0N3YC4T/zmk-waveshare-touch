@@ -11,10 +11,6 @@ config PROSPECTOR_STATUS_SCREEN_OPERATOR
 
 endchoice
 
-config PROSPECTOR_ROTATE_DISPLAY_180
-    bool "Rotate the display 180 degrees"
-    default n
-
 config PROSPECTOR_SHOW_MODIFIERS
     bool "Display modifier key indicators (Cmd, Opt, Ctrl, Shift)"
     default y
