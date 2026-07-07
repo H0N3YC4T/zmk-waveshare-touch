@@ -22,11 +22,10 @@ static struct zmk_widget_layer_display layer_display_widget;
 static struct zmk_widget_battery_circles battery_circles_widget;
 static struct zmk_widget_output output_widget;
 
-/* Position the status-screen widgets for the current orientation. All widgets
- * stay at their original full sizes -- earlier this trimmed the WPM meter,
- * battery, and output widgets down to fit battery UNDER output on landscape,
- * but that shrink wasn't wanted, so it's reverted (widgets are full-size again
- * in both orientations).
+/* Position the status-screen widgets for the current orientation. WPM meter,
+ * battery, and output stay at their original full sizes in both orientations
+ * (an earlier pass trimmed all three to force battery UNDER output to also fit
+ * landscape -- that shrink wasn't wanted, and is reverted).
  *
  * Portrait (240x280) has slack to spare: battery UNDER output at full size
  * fits cleanly in the same two vertical slots the widgets already used pre-
@@ -36,10 +35,17 @@ static struct zmk_widget_output output_widget;
  * output(62) + battery(62) alone is 244px, already past the 240px screen
  * height with ZERO gaps between them, let alone margins -- stacking here is
  * not achievable without shrinking something, which was explicitly rejected.
- * So landscape keeps its original side-by-side arrangement. */
+ * So landscape keeps its original side-by-side arrangement.
+ *
+ * The modifier row DOES narrow in portrait (230 -> 200, see
+ * modifier_indicator.c) -- at 230 centred it had only 5px clearance to the
+ * portrait screen edge on each side, uncomfortably close. Landscape's copy is
+ * untouched at the original 230/x=25. */
 void status_screen_reflow(void) {
     if (ui_rot & 1) { /* portrait: 240x280 */
-        /* modifier row is 200 wide (see modifier_indicator.c), centred: (240-200)/2 */
+        /* modifier row narrowed to 200 (only here -- landscape is untouched at
+         * 230, see modifier_indicator.c); centred: (240-200)/2 */
+        zmk_widget_modifier_indicator_set_width(&modifier_indicator_widget, 200);
         lv_obj_set_pos(zmk_widget_modifier_indicator_obj(&modifier_indicator_widget), 20, 8);
         zmk_widget_wpm_meter_set_width(&wpm_meter_widget, 220);
         lv_obj_set_pos(zmk_widget_wpm_meter_obj(&wpm_meter_widget), 10, 40);
@@ -48,8 +54,9 @@ void status_screen_reflow(void) {
         lv_obj_set_pos(zmk_widget_output_obj(&output_widget), 62, 152);
         lv_obj_set_pos(zmk_widget_battery_circles_obj(&battery_circles_widget), 54, 216);
     } else { /* landscape: 280x240 */
-        /* modifier row is 200 wide (see modifier_indicator.c), centred: (280-200)/2 */
-        lv_obj_set_pos(zmk_widget_modifier_indicator_obj(&modifier_indicator_widget), 40, 8);
+        /* original 230-wide row, untouched; centred: (280-230)/2 */
+        zmk_widget_modifier_indicator_set_width(&modifier_indicator_widget, 230);
+        lv_obj_set_pos(zmk_widget_modifier_indicator_obj(&modifier_indicator_widget), 25, 8);
         zmk_widget_wpm_meter_set_width(&wpm_meter_widget, 260);
         lv_obj_set_pos(zmk_widget_wpm_meter_obj(&wpm_meter_widget), 10, 42);
         zmk_widget_layer_display_set_width(&layer_display_widget, 260);

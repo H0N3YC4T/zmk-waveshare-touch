@@ -109,10 +109,10 @@ int zmk_widget_modifier_indicator_init(struct zmk_widget_modifier_indicator *wid
     /* LV_FLEX_ALIGN_SPACE_BETWEEN stretches the gaps between the 4 labels/3
      * separators to fill this whole declared width, so this number IS the row's
      * total footprint (the margins between mod keys), not just a bounding box.
-     * Was 230 -- tightened to 200 so the row (centred by status_screen.c) keeps
-     * real clearance from the screen edges in portrait, where it was uncomfortably
-     * close (5px each side at 230). */
-    lv_obj_set_size(widget->obj, 200, 24);
+     * 230 is the landscape size; status_screen_reflow() narrows it for portrait
+     * via zmk_widget_modifier_indicator_set_width(), where it was uncomfortably
+     * close to the screen edge (5px each side at 230, centred). */
+    lv_obj_set_size(widget->obj, 230, 24);
     lv_obj_set_style_bg_opa(widget->obj, LV_OPA_TRANSP, LV_PART_MAIN);
     lv_obj_set_style_border_width(widget->obj, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_all(widget->obj, 0, LV_PART_MAIN);
@@ -135,4 +135,8 @@ int zmk_widget_modifier_indicator_init(struct zmk_widget_modifier_indicator *wid
 
 lv_obj_t *zmk_widget_modifier_indicator_obj(struct zmk_widget_modifier_indicator *widget) {
     return widget->obj;
+}
+
+void zmk_widget_modifier_indicator_set_width(struct zmk_widget_modifier_indicator *widget, int width) {
+    lv_obj_set_width(widget->obj, width);
 }
