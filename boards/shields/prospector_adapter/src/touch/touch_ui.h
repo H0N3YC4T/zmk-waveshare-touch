@@ -114,6 +114,7 @@ extern const lv_image_dsc_t icon_trackpad __weak;
 extern const lv_image_dsc_t icon_modkeys __weak;
 extern const lv_image_dsc_t icon_numpad __weak;
 extern const lv_image_dsc_t icon_symbols __weak;
+extern const lv_image_dsc_t icon_fkeys __weak;
 
 /* ------------------------------- functions -------------------------------- */
 

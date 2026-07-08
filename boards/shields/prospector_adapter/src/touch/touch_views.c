@@ -20,7 +20,7 @@ static void tap_normal(int cell)
 
 static void build_home(void)
 {
-  draw_cell(0, 0, 1, "Fn", COLOR_PURPLE);
+  draw_cell_icon(0, 0, &icon_fkeys, "Fn", COLOR_PURPLE);
   draw_cell(0, 1, 1, LV_SYMBOL_UP, COLOR_RED);
   draw_cell_icon(0, 2, &icon_numpad, "123", COLOR_PURPLE);
   draw_cell_icon(1, 0, &icon_symbols, "#$%", COLOR_PURPLE);
