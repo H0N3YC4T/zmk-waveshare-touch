@@ -57,8 +57,9 @@ static void tap_home(int cell)
 
 /* ------------------------------- SETTINGS --------------------------------- */
 /* 3x3. One setting per outer column: left = trackpad sensitivity, right = display
- * brightness. Rows 0/1 = + and - (greyed at the end stop); row 2 = icon + value
- * readouts (blue, not keys) splitting the row 50/50. Middle: back / rotate.
+ * brightness. Rows 0/1 = + (green) and - (yellow), greyed at the end stop; row 2 =
+ * icon + value readouts (purple, not keys) splitting the row 50/50. Middle: back /
+ * rotate -- the rotate button is the only blue on the screen, so it stands out.
  * (No sun glyph exists in LVGL's built-in set; eye-open marks brightness.) */
 
 static void build_settings(void)
@@ -69,25 +70,25 @@ static void build_settings(void)
   if (sn >= 0)
   {
     draw_cell(0, 0, 1, LV_SYMBOL_PLUS,
-              sn >= SETTINGS_SENS_MAX ? COLOR_HINT_GLYPH : COLOR_PURPLE);
-    draw_cell(1, 0, 1, LV_SYMBOL_MINUS, sn <= 0 ? COLOR_HINT_GLYPH : COLOR_PURPLE);
+              sn >= SETTINGS_SENS_MAX ? COLOR_HINT_GLYPH : COLOR_GREEN);
+    draw_cell(1, 0, 1, LV_SYMBOL_MINUS, sn <= 0 ? COLOR_HINT_GLYPH : COLOR_YELLOW);
   }
   draw_cell(0, 1, 1, LV_SYMBOL_UP, COLOR_RED);
   draw_cell(1, 1, 1, LV_SYMBOL_REFRESH, COLOR_BLUE); /* rotate 90deg cw per tap */
   draw_cell(0, 2, 1, LV_SYMBOL_PLUS,
-            br >= SETTINGS_BRIGHT_MAX ? COLOR_HINT_GLYPH : COLOR_PURPLE);
+            br >= SETTINGS_BRIGHT_MAX ? COLOR_HINT_GLYPH : COLOR_GREEN);
   draw_cell(1, 2, 1, LV_SYMBOL_MINUS,
-            br <= SETTINGS_BRIGHT_MIN ? COLOR_HINT_GLYPH : COLOR_PURPLE);
+            br <= SETTINGS_BRIGHT_MIN ? COLOR_HINT_GLYPH : COLOR_YELLOW);
   /* Readout row on a temporary 2-column grid (1.5 units each); taps still
    * resolve on the 3x3 grid -- row 2 is no-op cells either way. */
   grid_cols = 2;
   if (sn >= 0)
   {
     lv_snprintf(lbl, sizeof(lbl), LV_SYMBOL_GPS " %d", sn);
-    draw_cell(2, 0, 1, lbl, COLOR_BLUE);
+    draw_cell(2, 0, 1, lbl, COLOR_PURPLE);
   }
   lv_snprintf(lbl, sizeof(lbl), LV_SYMBOL_EYE_OPEN " %d%%", br);
-  draw_cell(2, 1, 1, lbl, COLOR_BLUE);
+  draw_cell(2, 1, 1, lbl, COLOR_PURPLE);
   grid_cols = 3;
 }
 

@@ -41,9 +41,9 @@
  * (touch_views.c) draws the lane divider flush to it. */
 #define TP_SCROLL_ZONE 240
 
-#define COLOR_PURPLE              /* lilac/purple */
-#define COLOR_RED                 /* low-battery red */
-#define COLOR_BLUE                /* pastel battery-blue */
+/* COLOR_PURPLE / COLOR_RED / COLOR_BLUE / COLOR_GREEN / COLOR_YELLOW live in
+ * display_colors.h (shared with the widgets). Roles: purple = keys, red = back,
+ * blue = nav/rotate/armed, green = settings +, yellow = settings -. */
 #define COLOR_BTN_BG 0x101216     /* soft charcoal button fill */
 #define COLOR_HINT 0x303030       /* dim legend/hint text */
 #define COLOR_HINT_GLYPH 0x505050 /* slightly brighter hint glyphs */

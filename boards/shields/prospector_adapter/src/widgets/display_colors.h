@@ -8,6 +8,8 @@
 #define DISPLAY_COLOR_WPM_BAR_ACTIVE 0xc8a2c8
 #define DISPLAY_COLOR_WPM_BAR_INACTIVE 0x242424
 #define COLOR_PURPLE 0xc8a2c8
+#define COLOR_GREEN 0xa8e6b8  // pastel green (settings +) -- same family as COLOR_BLUE
+#define COLOR_YELLOW 0xf5e08c // pastel yellow (settings -) -- same as BATTERY_MID_FILL
 
 #define DISPLAY_COLOR_LAYER_TEXT 0xffffff
 #define DISPLAY_COLOR_LAYER_DOT_ACTIVE 0xe0e0e0
