@@ -57,5 +57,5 @@ does nothing.
 | SYMBOLS | 3x3 | 32 symbols, same paging as F-KEYS |
 | NUMPAD | 4x4 | true HID Keypad codes (KP_*, not main-row digits): 0–9, + − * /, enter · operators + enter blue · cell 12 = back |
 | MODIFIERS | 2x3 | one-shot mods: 0 = CTRL · 2 = SHFT · 3 = ALT · 5 = GUI · 4 = empty · armed = solid blue fill + black text, applied to the next key sent; cleared on leaving for NORMAL or SETTINGS |
-| PAD | 2x3 | user macro pad: 0 = M1 · 2 = M2 · 3 = M3 · 4 = M4 · 5 = M5 (binding order; unbound cells greyed, no-op) · 1 = back · one-shot mods do NOT apply to pad bindings — bake mods into the binding |
+| PAD | 2x3 | user macro pad (faces → keymap bindings): 0 = `$_` terminal · 2 = LIST task manager · 3 = WIFI browser · 4 = EYE_CLOSE show desktop · 5 = EDIT notes · 1 = back · unbound cells grey/no-op · one-shot mods do NOT apply — bake mods into the binding |
 | TRACKPAD | whole screen | drag = pointer · scroll-lane drag (right strip landscape / bottom strip portrait) = scroll · 1 tap = left click · 2 taps = right click · tap-then-hold-and-drag = drag-lock · top-left X = exit |
