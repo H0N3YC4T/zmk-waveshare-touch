@@ -30,7 +30,10 @@ if(CONFIG_SHIELD_PROSPECTOR_ADAPTER)
   file(GLOB font_sources src/fonts/*.c)
   zephyr_library_sources(${font_sources})
 
-  # Optional custom icons (weak symbols -- absent files just mean text fallbacks)
+  # Optional custom icons (weak symbols -- absent files just mean text fallbacks).
+  # Guarded: an empty glob would call zephyr_library_sources() with no args = error.
   file(GLOB icon_sources src/icons/*.c)
-  zephyr_library_sources(${icon_sources})
+  if(icon_sources)
+    zephyr_library_sources(${icon_sources})
+  endif()
 endif()
