@@ -198,3 +198,4 @@ extern void tap_trackpad(int cell);
 // CALCULATOR
 extern void build_calc(void);
 extern void tap_calc(int cell);
+extern void hold_calc(int cell);

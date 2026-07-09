@@ -44,16 +44,16 @@ void build_view(enum ui_view v)
 }
 
 const struct view_def view_defs[VIEW_COUNT] = {
-    /*                    build             on_tap          r  c  portrait   2x3    tmout  mods   on_hold */
-    [VIEW_NORMAL] =    {NULL,           tap_normal,    2, 3, NULL,    false, false, false, NULL},
-    [VIEW_HOME] =      {build_home,     tap_home,      3, 3, NULL,    false, true,  true,  hold_home},
-    [VIEW_SETTINGS] =  {build_settings, tap_settings,  3, 3, NULL,    false, true,  false, NULL},
-    [VIEW_MEDIA] =     {build_media,    tap_media,     2, 3, p23_pos, true,  false, true,  NULL},
-    [VIEW_FKEYS] =     {build_fkeys,    tap_fkeys,     3, 3, NULL,    false, false, true,  NULL},
-    [VIEW_NUMPAD] =    {build_numpad,   tap_numpad,    4, 4, NULL,    false, false, true,  NULL},
-    [VIEW_SYMBOLS] =   {build_symbols,  tap_symbols,   3, 3, NULL,    false, false, true,  NULL},
-    [VIEW_MODIFIERS] = {build_modifiers,tap_modifiers, 2, 3, p23_pos, true,  false, true,  NULL},
-    [VIEW_TRACKPAD] =  {build_trackpad, tap_trackpad,  2, 3, NULL,    false, false, true,  NULL},
-    [VIEW_PAD] =       {build_pad,      tap_pad,       2, 3, p23_pos, true,  false, true,  NULL},
-    [VIEW_CALC] =      {build_calc,     tap_calc,      5, 4, NULL,    false, false, false, NULL},
+    /*                 build            on_tap         r   c   portrait  2x3    tmout  mods   on_hold */
+    [VIEW_NORMAL] =    {NULL,           tap_normal,    2,  3,  NULL,     false, false, false, NULL},
+    [VIEW_HOME] =      {build_home,     tap_home,      3,  3,  NULL,     false, true,  true,  hold_home},
+    [VIEW_SETTINGS] =  {build_settings, tap_settings,  3,  3,  NULL,     false, true,  false, NULL},
+    [VIEW_MEDIA] =     {build_media,    tap_media,     2,  3,  p23_pos,  true,  false, true,  NULL},
+    [VIEW_FKEYS] =     {build_fkeys,    tap_fkeys,     3,  3,  NULL,     false, false, true,  NULL},
+    [VIEW_NUMPAD] =    {build_numpad,   tap_numpad,    4,  4,  NULL,     false, false, true,  NULL},
+    [VIEW_SYMBOLS] =   {build_symbols,  tap_symbols,   3,  3,  NULL,     false, false, true,  NULL},
+    [VIEW_MODIFIERS] = {build_modifiers,tap_modifiers, 2,  3,  p23_pos,  true,  false, true,  NULL},
+    [VIEW_TRACKPAD] =  {build_trackpad, tap_trackpad,  2,  3,  NULL,     false, false, true,  NULL},
+    [VIEW_PAD] =       {build_pad,      tap_pad,       2,  3,  p23_pos,  true,  false, true,  NULL},
+    [VIEW_CALC] =      {build_calc,     tap_calc,      5,  4,  NULL,     false, false, false, hold_calc},
 };

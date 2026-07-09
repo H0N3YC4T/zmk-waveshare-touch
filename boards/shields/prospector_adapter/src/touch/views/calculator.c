@@ -10,6 +10,7 @@ static char calc_expr[40];
 static const char *calc_cp;
 static bool calc_shown;
 static bool eval_okay;
+static bool bracket_open;
 
 static const char btn[16] = {
     '7',
@@ -51,6 +52,7 @@ static const char *const lbls[16] = {
 
 /* FORWARD DECLARATIONS */
 static void calc_controller(int cell);
+static double parse_expr(void);
 static double parse_term(void);
 static double parse_factor(void);
 
@@ -81,6 +83,49 @@ void tap_calc(int cell)
     calc_controller(cell);
 
   build_view(VIEW_CALC);
+}
+
+void hold_calc(int cell)
+{
+  if (cell >= 0 && cell <= 3)
+  {
+    tap_calc(cell);
+    return;
+  }
+
+  int b = cell - 4; // Exclude display row
+  if (b >= 0 && b <= 15)
+  {
+    if (btn[b] == '\b')
+    {
+      calc_expr[0] = '\0';
+      calc_shown = false;
+      bracket_open = false;
+      build_view(VIEW_CALC);
+      return;
+    }
+    else if (btn[b] == '0')
+    {
+      calc_push('.');
+      build_view(VIEW_CALC);
+      return;
+    }
+    else if (btn[b] == '=')
+    {
+      if (!bracket_open) {
+        calc_push('(');
+        bracket_open = true;
+      } else {
+        calc_push(')');
+        bracket_open = false;
+      }
+      build_view(VIEW_CALC);
+      return;
+    }
+  }
+
+  // Fallback to regular tap behavior for other buttons
+  tap_calc(cell);
 }
 
 /* CALCULATOR FUNCTIONS */
@@ -127,6 +172,32 @@ static double parse_factor(void)
 {
   double sum = 0;
   bool num_empty = true;
+  bool is_negative = false;
+
+  if (*calc_cp == '-')
+  {
+    is_negative = true;
+    calc_cp++;
+  }
+  else if (*calc_cp == '+')
+  {
+    calc_cp++;
+  }
+
+  if (*calc_cp == '(')
+  {
+    calc_cp++;
+    sum = parse_expr();
+    if (*calc_cp == ')')
+    {
+      calc_cp++;
+    }
+    else
+    {
+      eval_okay = false;
+    }
+    return is_negative ? -sum : sum;
+  }
 
   // for each digit
   while (*calc_cp >= '0' && *calc_cp <= '9')
@@ -135,10 +206,25 @@ static double parse_factor(void)
     calc_cp++;
     num_empty = false;
   }
+  
+  // for decimal point
+  if (*calc_cp == '.')
+  {
+    calc_cp++;
+    double fraction = 0.1;
+    while (*calc_cp >= '0' && *calc_cp <= '9')
+    {
+      sum += (*calc_cp - '0') * fraction;
+      fraction /= 10.0;
+      calc_cp++;
+      num_empty = false;
+    }
+  }
+
   // If no digits were found
   if (num_empty)
     eval_okay = false;
-  return sum;
+  return is_negative ? -sum : sum;
 }
 
 /* USER INPUT HANDLER */
@@ -152,6 +238,7 @@ static void calc_push(char ch)
       calc_expr[0] = '\0';
     }
     calc_shown = false;
+    bracket_open = false;
   }
 
   size_t n = strlen(calc_expr);
@@ -168,13 +255,17 @@ static void calc_tap_backspace(void)
   {
     calc_expr[0] = '\0';
     calc_shown = false;
+    bracket_open = false;
   }
   else
   {
     size_t n = strlen(calc_expr);
     if (n)
     {
+      char deleted = calc_expr[n - 1];
       calc_expr[n - 1] = '\0';
+      if (deleted == '(') bracket_open = false;
+      else if (deleted == ')') bracket_open = true;
     }
   }
 }
@@ -184,14 +275,14 @@ static void calc_print_result(double result)
   int is_negative = result < 0;
   result = is_negative ? -result : result;
 
-  int whole = (int)result;
+  long long whole = (long long)result;
   int fraction = (int)((result - whole) * 100 + 0.5);
   if (fraction >= 100) {
       whole++;
       fraction = 0;
   }
 
-  snprintf(calc_expr, sizeof(calc_expr), "%s%d.%02d", 
+  snprintf(calc_expr, sizeof(calc_expr), "%s%lld.%02d", 
            (is_negative && (whole || fraction)) ? "-" : "", whole, fraction);
 
   int len = strlen(calc_expr);
