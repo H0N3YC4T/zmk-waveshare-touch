@@ -1,10 +1,5 @@
-
 /* --------------------------------- CALC ------------------------------------ */
-/* On-dongle calculator (hold 123 on HOME). 5 rows: row 0 = the display (spans all
- * 4 cols; a tap there returns to HOME), rows 1-4 mirror the numpad but the
- * bottom-left back becomes backspace and enter becomes = (evaluate). Everything
- * runs here on the M4F -- the host is never involved. Integer input, +-*x/ with
- * proper precedence, result shown with %g. */
+/* On-dongle calculator (hold 123 on HOME). */
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -84,18 +79,46 @@ static void tap_calc(int cell)
 }
 
 /* CALCULATOR FUNCTIONS */
-static double calc_expr_eval()
+static double parse_expr(void)
 {
-  double v = calc_num();
-  while (eval_okay && *calc_cp != '\0')
+  double a = parse_term();
+  while (eval_okay && (*calc_cp == '+' || *calc_cp == '-'))
   {
-    v = calc_term_lvl_1(v);
-    v = v + calc_term_lvl_2(v);
+    char op = *calc_cp++;
+    double b = parse_term();
+    a = (op == '+')
+            ? a + b
+            : a - b;
   }
-  return v;
+  return a;
 }
 
-static double calc_num()
+static double parse_term(void)
+{
+  double a = parse_factor();
+  while (eval_okay && (*calc_cp == '*' || *calc_cp == '/'))
+  {
+    char op = *calc_cp++;
+    double b = parse_factor();
+
+    if (op == '*')
+    {
+      a *= b;
+    }
+    else if (b == 0)
+    {
+      eval_okay = false;
+      a = 0;
+    }
+    else
+    {
+      a /= b;
+    }
+  }
+  return a;
+}
+
+static double parse_factor(void)
 {
   double sum = 0;
   bool num_empty = true;
@@ -111,48 +134,6 @@ static double calc_num()
   if (num_empty)
     eval_okay = false;
   return sum;
-}
-
-static double calc_term_lvl_1(double a)
-{
-  // Divide and multiply have higher precedence than add and subtract
-  while (eval_okay && (*calc_cp == '*' || *calc_cp == '/'))
-  {
-    char op = *calc_cp;
-    calc_cp++;
-    double b = calc_num();
-
-    if (op == '*')
-    {
-      a *= b;
-    }
-
-    // Div by zero check
-    else if (op == '/')
-      if (b == 0)
-      {
-        eval_okay = false;
-        a = 0;
-      }
-      else
-      {
-        a /= b;
-      }
-  }
-  return a;
-}
-
-static double calc_term_lvl_2(double a)
-{
-  while (eval_okay && (*calc_cp == '+' || *calc_cp == '-'))
-  {
-    char op = *calc_cp++;
-    double b = calc_num();
-    a = (op == '+')
-            ? a + b
-            : a - b;
-  }
-  return a;
 }
 
 /* USER INPUT HANDLER */
@@ -200,8 +181,9 @@ static void calc_tap_eval(void)
   calc_cp = &calc_expr[0];
 
   // Eval if not empty
-  if (calc_cp != '\0')
-    result = calc_expr_eval();
+  if (*calc_cp != '\0')
+    result = parse_expr();
+
   // Print result if valid
   if (eval_okay)
     snprintf(calc_expr, sizeof(calc_expr), "%.6g", result);
