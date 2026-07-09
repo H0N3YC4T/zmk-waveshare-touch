@@ -3,10 +3,7 @@
  * bottom, which declares each view's grid, portrait handling, idle-timeout and
  * one-shot-mod policy. Navigation (touch_nav.c) only ever consults the registry. */
 
-#include <stdio.h>  /* snprintf for the calculator result (picolibc double printf) */
-#include <string.h> /* strlen for the calc expression buffer */
 #include <zephyr/device.h>
-
 #include "touch_ui.h"
 
 /* ------------------------------- NORMAL ----------------------------------- */
@@ -357,165 +354,6 @@ static void tap_numpad(int cell)
   }
 }
 
-/* --------------------------------- CALC ------------------------------------ */
-/* On-dongle calculator (hold 123 on HOME). 5 rows: row 0 = the display (spans all
- * 4 cols; a tap there returns to HOME), rows 1-4 mirror the numpad but the
- * bottom-left back becomes backspace and enter becomes = (evaluate). Everything
- * runs here on the M4F -- the host is never involved. Integer input, +-*x/ with
- * proper precedence, result shown with %g. */
-
-static char calc_expr[40]; /* the expression string shown in the display row */
-static bool calc_shown;    /* a result is currently displayed (next digit restarts) */
-
-/* Recursive-descent evaluator over calc_expr: expr = term (('+'|'-') term)*,
- * term = number (('*'|'/') number)*. cp walks the string; ok goes false on a
- * missing number or divide-by-zero. Doubles use the FPU. */
-static const char *calc_cp;
-static double calc_num(bool *ok)
-{
-  double v = 0;
-  bool any = false;
-  while (*calc_cp >= '0' && *calc_cp <= '9')
-  {
-    v = v * 10 + (*calc_cp - '0');
-    calc_cp++;
-    any = true;
-  }
-  if (!any)
-  {
-    *ok = false;
-  }
-  return v;
-}
-static double calc_term(bool *ok)
-{
-  double v = calc_num(ok);
-  while (*ok && (*calc_cp == '*' || *calc_cp == '/'))
-  {
-    char op = *calc_cp++;
-    double r = calc_num(ok);
-    if (op == '*')
-    {
-      v *= r;
-    }
-    else if (r == 0)
-    {
-      *ok = false;
-    }
-    else
-    {
-      v /= r;
-    }
-  }
-  return v;
-}
-static double calc_expr_eval(bool *ok)
-{
-  double v = calc_term(ok);
-  while (*ok && (*calc_cp == '+' || *calc_cp == '-'))
-  {
-    char op = *calc_cp++;
-    double r = calc_term(ok);
-    v = (op == '+') ? v + r : v - r;
-  }
-  return v;
-}
-
-static void build_calc(void)
-{
-  static const char *const lbls[16] = {
-      "7", "8", "9", "+",
-      "4", "5", "6", "-",
-      "1", "2", "3", "*",
-      LV_SYMBOL_BACKSPACE, "0", "=", "/",
-  };
-  draw_cell(0, 0, 4, calc_expr[0] ? calc_expr : "0", COLOR_BLUE); /* display, spans row */
-  for (int c = 0; c < 16; c++)
-  {
-    uint32_t color = (c == 12)          ? COLOR_RED    /* backspace */
-                     : (c == 14)        ? COLOR_GREEN  /* = evaluate */
-                     : (c % 4 == 3)     ? COLOR_BLUE   /* operators */
-                                        : COLOR_PURPLE;/* digits */
-    draw_cell(1 + c / 4, c % 4, 1, lbls[c], color);
-  }
-}
-
-static void calc_push(char ch)
-{
-  if (calc_shown)
-  {
-    /* After a result: a digit restarts, an operator continues from the result. */
-    if (ch >= '0' && ch <= '9')
-    {
-      calc_expr[0] = '\0';
-    }
-    calc_shown = false;
-  }
-  size_t n = strlen(calc_expr);
-  if (n < sizeof(calc_expr) - 1)
-  {
-    calc_expr[n] = ch;
-    calc_expr[n + 1] = '\0';
-  }
-}
-
-static void tap_calc(int cell)
-{
-  if (cell >= 0 && cell <= 3)
-  {
-    show_view(VIEW_HOME); /* the display row is the exit */
-    return;
-  }
-  int b = cell - 4; /* rows 1-4 -> button 0..15 */
-  if (b < 0 || b > 15)
-  {
-    return;
-  }
-  static const char btn[16] = {
-      '7', '8', '9', '+',
-      '4', '5', '6', '-',
-      '1', '2', '3', '*',
-      '\b', '0', '=', '/',
-  };
-  char ch = btn[b];
-  if (ch == '\b')
-  {
-    if (calc_shown)
-    {
-      calc_expr[0] = '\0';
-      calc_shown = false;
-    }
-    else
-    {
-      size_t n = strlen(calc_expr);
-      if (n)
-      {
-        calc_expr[n - 1] = '\0';
-      }
-    }
-  }
-  else if (ch == '=')
-  {
-    bool ok = true;
-    calc_cp = calc_expr;
-    double r = calc_expr_eval(&ok);
-    if (!ok || *calc_cp != '\0' || calc_expr[0] == '\0')
-    {
-      snprintf(calc_expr, sizeof(calc_expr), "Error");
-    }
-    else
-    {
-      snprintf(calc_expr, sizeof(calc_expr), "%.6g", r);
-    }
-    calc_shown = true;
-  }
-  else
-  {
-    calc_push(ch);
-  }
-  build_view(VIEW_CALC);
-}
-
 /* ------------------------------- MODIFIERS --------------------------------- */
 /* One-shot mods; armed = solid blue fill + black text, applied to the next key
  * sent (send_key). Leaving for NORMAL or SETTINGS clears them (keeps_mods). */
@@ -566,7 +404,7 @@ static void tap_modifiers(int cell)
 
 static void build_pad(void)
 {
-  static const char *const lbls[6] = {"$_",          NULL,
+  static const char *const lbls[6] = {"$_", NULL,
                                       LV_SYMBOL_LIST, LV_SYMBOL_WIFI,
                                       LV_SYMBOL_EYE_CLOSE, LV_SYMBOL_EDIT};
   int n = touch_pad_count();

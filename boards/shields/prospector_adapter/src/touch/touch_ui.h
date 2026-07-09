@@ -159,3 +159,8 @@ int prospector_touchpad_sens_get(void);
 void prospector_touchpad_sens_step(int delta);
 void prospector_touch_set_orientation(int rot);
 bool prospector_touch_tap(int sx, int sy, bool hold); /* touch_input.c -> touch_nav.c */
+
+/* ------------------------------- views -------------------------------- */
+// CALCULATOR
+extern void build_calc(void);
+extern void tap_calc(int cell);

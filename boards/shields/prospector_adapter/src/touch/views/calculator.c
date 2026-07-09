@@ -1,0 +1,236 @@
+
+/* --------------------------------- CALC ------------------------------------ */
+/* On-dongle calculator (hold 123 on HOME). 5 rows: row 0 = the display (spans all
+ * 4 cols; a tap there returns to HOME), rows 1-4 mirror the numpad but the
+ * bottom-left back becomes backspace and enter becomes = (evaluate). Everything
+ * runs here on the M4F -- the host is never involved. Integer input, +-*x/ with
+ * proper precedence, result shown with %g. */
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include "../touch_ui.h"
+
+static char calc_expr[40];
+static const char *calc_cp;
+static bool calc_shown;
+static bool eval_okay;
+
+static const char btn[16] = {
+    '7',
+    '8',
+    '9',
+    '+',
+    '4',
+    '5',
+    '6',
+    '-',
+    '1',
+    '2',
+    '3',
+    '*',
+    '\b',
+    '0',
+    '=',
+    '/',
+};
+
+static const char *const lbls[16] = {
+    "7",
+    "8",
+    "9",
+    "+",
+    "4",
+    "5",
+    "6",
+    "-",
+    "1",
+    "2",
+    "3",
+    "*",
+    LV_SYMBOL_BACKSPACE,
+    "0",
+    "=",
+    "/",
+};
+
+/* DISPLAY FUNCTIONS */
+static void build_calc(void)
+{
+  draw_cell(0, 0, 4, calc_expr[0] ? calc_expr : "0", COLOR_BLUE); /* display, spans row */
+
+  for (int c = 0; c < 16; c++)
+  {
+    uint32_t color = (c == 12)      ? COLOR_RED     /* backspace */
+                     : (c == 14)    ? COLOR_GREEN   /* = evaluate */
+                     : (c % 4 == 3) ? COLOR_BLUE    /* operators */
+                                    : COLOR_PURPLE; /* digits */
+    draw_cell(1 + c / 4, c % 4, 1, lbls[c], color);
+  }
+}
+
+static void tap_calc(int cell)
+{
+  // Display row pressed, exit to HOME
+  if (cell >= 0 && cell <= 3)
+  {
+    show_view(VIEW_HOME);
+    return;
+  }
+  else
+    calc_controller(cell);
+
+  build_view(VIEW_CALC);
+}
+
+/* CALCULATOR FUNCTIONS */
+static double calc_expr_eval()
+{
+  double v = calc_num();
+  while (eval_okay && *calc_cp != '\0')
+  {
+    v = calc_term_lvl_1(v);
+    v = v + calc_term_lvl_2(v);
+  }
+  return v;
+}
+
+static double calc_num()
+{
+  double sum = 0;
+  bool num_empty = true;
+
+  // for each digit
+  while (*calc_cp >= '0' && *calc_cp <= '9')
+  {
+    sum = sum * 10 + (*calc_cp - '0');
+    calc_cp++;
+    num_empty = false;
+  }
+  // If no digits were found
+  if (num_empty)
+    eval_okay = false;
+  return sum;
+}
+
+static double calc_term_lvl_1(double a)
+{
+  // Divide and multiply have higher precedence than add and subtract
+  while (eval_okay && (*calc_cp == '*' || *calc_cp == '/'))
+  {
+    char op = *calc_cp;
+    calc_cp++;
+    double b = calc_num();
+
+    if (op == '*')
+    {
+      a *= b;
+    }
+
+    // Div by zero check
+    else if (op == '/')
+      if (b == 0)
+      {
+        eval_okay = false;
+        a = 0;
+      }
+      else
+      {
+        a /= b;
+      }
+  }
+  return a;
+}
+
+static double calc_term_lvl_2(double a)
+{
+  while (eval_okay && (*calc_cp == '+' || *calc_cp == '-'))
+  {
+    char op = *calc_cp++;
+    double b = calc_num();
+    a = (op == '+')
+            ? a + b
+            : a - b;
+  }
+  return a;
+}
+
+/* USER INPUT HANDLER */
+static void calc_push(char ch)
+{
+  if (calc_shown) // If a result is displayed
+  {
+    // clear on number input
+    if (ch >= '0' && ch <= '9')
+    {
+      calc_expr[0] = '\0';
+    }
+    calc_shown = false;
+  }
+
+  size_t n = strlen(calc_expr);
+  if (n < sizeof(calc_expr) - 1)
+  {
+    calc_expr[n] = ch;
+    calc_expr[n + 1] = '\0';
+  }
+}
+
+static void calc_tap_backspace(void)
+{
+  if (calc_shown)
+  {
+    calc_expr[0] = '\0';
+    calc_shown = false;
+  }
+  else
+  {
+    size_t n = strlen(calc_expr);
+    if (n)
+    {
+      calc_expr[n - 1] = '\0';
+    }
+  }
+}
+
+static void calc_tap_eval(void)
+{
+  double result = 0;
+  eval_okay = true;
+  calc_cp = &calc_expr[0];
+
+  // Eval if not empty
+  if (calc_cp != '\0')
+    result = calc_expr_eval();
+  // Print result if valid
+  if (eval_okay)
+    snprintf(calc_expr, sizeof(calc_expr), "%.6g", result);
+  // Print error if invalid
+  else
+    snprintf(calc_expr, sizeof(calc_expr), "Error");
+
+  calc_shown = true;
+}
+
+static void calc_controller(int cell)
+{
+  int b = cell - 4; // Exclude display row
+
+  // Invalid button index, do nothing
+  if (b < 0 || b > 15)
+    return;
+
+  char ch = btn[b];
+
+  // Backspace is pressed
+  if (ch == '\b')
+    calc_tap_backspace();
+
+  // Eval is pressed
+  else if (ch == '=')
+    calc_tap_eval();
+
+  // Any other button is pressed
+  else
+    calc_push(ch);
+}
