@@ -50,7 +50,7 @@ static const char *const lbls[16] = {
 };
 
 /* DISPLAY FUNCTIONS */
-static void build_calc(void)
+void build_calc(void)
 {
   draw_cell(0, 0, 4, calc_expr[0] ? calc_expr : "0", COLOR_ACCENT); /* display, spans row */
 
@@ -64,7 +64,7 @@ static void build_calc(void)
   }
 }
 
-static void tap_calc(int cell)
+void tap_calc(int cell)
 {
   // Display row pressed, exit to HOME
   if (cell >= 0 && cell <= 3)
@@ -174,6 +174,26 @@ static void calc_tap_backspace(void)
   }
 }
 
+static void calc_print_result(double result)
+{
+  int is_negative = result < 0;
+  result = is_negative ? -result : result;
+
+  int whole = (int)result;
+  int fraction = (int)((result - whole) * 100 + 0.5);
+  if (fraction >= 100) {
+      whole++;
+      fraction = 0;
+  }
+
+  snprintf(calc_expr, sizeof(calc_expr), "%s%d.%02d", 
+           (is_negative && (whole || fraction)) ? "-" : "", whole, fraction);
+
+  int len = strlen(calc_expr);
+  while (len > 0 && calc_expr[len - 1] == '0') calc_expr[--len] = '\0';
+  if (len > 0 && calc_expr[len - 1] == '.') calc_expr[--len] = '\0';
+}
+
 static void calc_tap_eval(void)
 {
   double result = 0;
@@ -185,8 +205,9 @@ static void calc_tap_eval(void)
     result = parse_expr();
 
   // Print result if valid
-  if (eval_okay)
-    snprintf(calc_expr, sizeof(calc_expr), "%.6g", result);
+  if (eval_okay) {
+    calc_print_result(result);
+  }
   // Print error if invalid
   else
     snprintf(calc_expr, sizeof(calc_expr), "Error");
