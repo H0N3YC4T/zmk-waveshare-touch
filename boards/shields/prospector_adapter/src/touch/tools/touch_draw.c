@@ -1,4 +1,4 @@
-/* Grid geometry + button drawing for the touch UI. */
+/* Grid geometry + button draawing for the touch UI, */
 
 #include "../touch_ui.h"
 
@@ -47,7 +47,7 @@ static lv_obj_t *draw_cell_impl(int row, int col, int w_cells, int h_cells, cons
   lv_obj_t *l = lv_label_create(b);
   if (l == NULL)
   {
-    return;
+    return b;
   }
   lv_label_set_text(l, text);
   lv_obj_set_style_text_font(l, &lv_font_montserrat_20, LV_PART_MAIN);
@@ -94,7 +94,6 @@ lv_obj_t *draw_cell_icon_ext(int row, int col, int w_cells, int h_cells, const l
   lv_obj_center(img);
   return b;
 }
-
 
 lv_obj_t *draw_cell_icon(int row, int col, const lv_image_dsc_t *icon, const char *fallback,
                     uint32_t accent)

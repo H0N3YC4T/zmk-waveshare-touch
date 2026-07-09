@@ -4,12 +4,15 @@
 void tap_calc_ws(int cell) {
   ARG_UNUSED(cell);
   calc_ensure_binary();
-  if (bin_word_size == 32)
+  if (bin_word_size == 64)
+    bin_word_size = 32;
+  else if (bin_word_size == 32)
     bin_word_size = 16;
   else if (bin_word_size == 16)
     bin_word_size = 8;
   else
-    bin_word_size = 32;
+    bin_word_size = 64;
+  bin_converted = false;
 
   // Re-evaluate to remask correctly
   if (calc_expr[0] != '\0') {
