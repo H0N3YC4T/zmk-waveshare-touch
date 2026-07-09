@@ -58,52 +58,52 @@ static void init_styles(void)
   }
 
   lv_style_init(&style_arc_ring_disconnected);
-  lv_style_set_arc_color(&style_arc_ring_disconnected, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_RING));
+  lv_style_set_arc_color(&style_arc_ring_disconnected, lv_color_hex(COLOR_BATTERY_DISCONNECTED_RING));
 
   lv_style_init(&style_arc_ring_connected);
-  lv_style_set_arc_color(&style_arc_ring_connected, lv_color_hex(DISPLAY_COLOR_BATTERY_RING));
+  lv_style_set_arc_color(&style_arc_ring_connected, lv_color_hex(COLOR_BATTERY_RING));
 
   lv_style_init(&style_arc_ring_mid);
-  lv_style_set_arc_color(&style_arc_ring_mid, lv_color_hex(DISPLAY_COLOR_BATTERY_MID_RING));
+  lv_style_set_arc_color(&style_arc_ring_mid, lv_color_hex(COLOR_BATTERY_MID_RING));
 
   lv_style_init(&style_arc_ring_low);
-  lv_style_set_arc_color(&style_arc_ring_low, lv_color_hex(DISPLAY_COLOR_BATTERY_LOW_RING));
+  lv_style_set_arc_color(&style_arc_ring_low, lv_color_hex(COLOR_BATTERY_LOW_RING));
 
   lv_style_init(&style_arc_ind_disconnected);
-  lv_style_set_arc_color(&style_arc_ind_disconnected, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_FILL));
+  lv_style_set_arc_color(&style_arc_ind_disconnected, lv_color_hex(COLOR_BATTERY_DISCONNECTED_FILL));
 
   lv_style_init(&style_arc_ind_connected);
-  lv_style_set_arc_color(&style_arc_ind_connected, lv_color_hex(COLOR_BLUE));
+  lv_style_set_arc_color(&style_arc_ind_connected, lv_color_hex(COLOR_ACCENT));
 
   lv_style_init(&style_arc_ind_mid);
-  lv_style_set_arc_color(&style_arc_ind_mid, lv_color_hex(DISPLAY_COLOR_BATTERY_MID_FILL));
+  lv_style_set_arc_color(&style_arc_ind_mid, lv_color_hex(COLOR_BATTERY_MID_FILL));
 
   lv_style_init(&style_arc_ind_low);
   lv_style_set_arc_color(&style_arc_ind_low, lv_color_hex(COLOR_RED));
 
   lv_style_init(&style_label_box_disconnected);
-  lv_style_set_bg_color(&style_label_box_disconnected, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_FILL));
+  lv_style_set_bg_color(&style_label_box_disconnected, lv_color_hex(COLOR_BATTERY_DISCONNECTED_FILL));
 
   lv_style_init(&style_label_box_connected);
-  lv_style_set_bg_color(&style_label_box_connected, lv_color_hex(COLOR_BLUE));
+  lv_style_set_bg_color(&style_label_box_connected, lv_color_hex(COLOR_ACCENT));
 
   lv_style_init(&style_label_box_mid);
-  lv_style_set_bg_color(&style_label_box_mid, lv_color_hex(DISPLAY_COLOR_BATTERY_MID_FILL));
+  lv_style_set_bg_color(&style_label_box_mid, lv_color_hex(COLOR_BATTERY_MID_FILL));
 
   lv_style_init(&style_label_box_low);
   lv_style_set_bg_color(&style_label_box_low, lv_color_hex(COLOR_RED));
 
   lv_style_init(&style_label_disconnected);
-  lv_style_set_text_color(&style_label_disconnected, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_LABEL));
+  lv_style_set_text_color(&style_label_disconnected, lv_color_hex(COLOR_BATTERY_DISCONNECTED_LABEL));
 
   lv_style_init(&style_label_connected);
-  lv_style_set_text_color(&style_label_connected, lv_color_hex(0x000000));
+  lv_style_set_text_color(&style_label_connected, lv_color_hex(COLOR_BACKGROUND));
 
   lv_style_init(&style_battery_label_disconnected);
-  lv_style_set_text_color(&style_battery_label_disconnected, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_FILL));
+  lv_style_set_text_color(&style_battery_label_disconnected, lv_color_hex(COLOR_BATTERY_DISCONNECTED_FILL));
 
   lv_style_init(&style_battery_label_connected);
-  lv_style_set_text_color(&style_battery_label_connected, lv_color_hex(COLOR_BLUE));
+  lv_style_set_text_color(&style_battery_label_connected, lv_color_hex(COLOR_ACCENT));
 
   styles_initialized = true;
 }
@@ -259,23 +259,23 @@ static void update_peripheral_display(uint8_t source)
   {
     if (low_battery)
     {
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_LOW_RING), LV_PART_MAIN);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_LOW_RING), LV_PART_MAIN);
       lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_RED), LV_PART_INDICATOR);
     }
     else if (mid_battery)
     {
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_MID_RING), LV_PART_MAIN);
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_MID_FILL), LV_PART_INDICATOR);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_MID_RING), LV_PART_MAIN);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_MID_FILL), LV_PART_INDICATOR);
     }
     else if (connected)
     {
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_RING), LV_PART_MAIN);
-      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BLUE), LV_PART_INDICATOR);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_RING), LV_PART_MAIN);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_ACCENT), LV_PART_INDICATOR);
     }
     else
     {
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_RING), LV_PART_MAIN);
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_FILL), LV_PART_INDICATOR);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_DISCONNECTED_RING), LV_PART_MAIN);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_DISCONNECTED_FILL), LV_PART_INDICATOR);
     }
     lv_bar_set_value(bar, connected ? level : 0, LV_ANIM_ON);
   }
@@ -591,8 +591,8 @@ int zmk_widget_battery_circles_init(struct zmk_widget_battery_circles *widget, l
       lv_bar_set_value(bar, 0, LV_ANIM_OFF);
       lv_obj_set_style_radius(bar, 2, LV_PART_MAIN);
       lv_obj_set_style_radius(bar, 2, LV_PART_INDICATOR);
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_RING), LV_PART_MAIN);
-      lv_obj_set_style_bg_color(bar, lv_color_hex(DISPLAY_COLOR_BATTERY_DISCONNECTED_FILL), LV_PART_INDICATOR);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_DISCONNECTED_RING), LV_PART_MAIN);
+      lv_obj_set_style_bg_color(bar, lv_color_hex(COLOR_BATTERY_DISCONNECTED_FILL), LV_PART_INDICATOR);
       lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_MAIN);
       lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_INDICATOR);
     }

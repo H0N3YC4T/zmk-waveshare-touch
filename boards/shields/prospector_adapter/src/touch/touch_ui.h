@@ -1,12 +1,13 @@
 #pragma once
 
 /* Shared internals of the touch UI (src/touch/). One feature per .c file:
- *   touch_input.c    -- CST816S gesture driver (taps + trackpad -> mouse HID)
- *   touch_keys.c     -- workqueue key/macro sending (the thread-safety boundary)
- *   touch_rotation.c -- 4-step display rotation (MADCTL + LVGL resolution swap)
- *   touch_draw.c     -- grid geometry + button drawing
- *   touch_views.c    -- per-view renderers (build_view)
- *   touch_nav.c      -- tap routing, view state, idle timeout, overlay + timer
+ *   tools/touch_input.c    -- CST816S gesture driver (taps + trackpad -> mouse HID)
+ *   tools/touch_keys.c     -- workqueue key/macro sending (the thread-safety boundary)
+ *   tools/touch_rotation.c -- 4-step display rotation (MADCTL + LVGL resolution swap)
+ *   tools/touch_draw.c     -- grid geometry + button drawing
+ *   tools/touch_nav.c      -- tap routing, view state, idle timeout, overlay + timer
+ *   touch_main.c           -- view registry (view_defs[]) + build_view() dispatcher
+ *   views/                 -- per-view renderers (one file per view)
  * ../status_screen.c -- screen assembly (widgets + touch_ui_attach)
  */
 
@@ -42,14 +43,9 @@
  * (touch_views.c) draws the lane divider flush to it. */
 #define TP_SCROLL_ZONE 240
 
-/* COLOR_PURPLE / COLOR_RED / COLOR_BLUE / COLOR_GREEN / COLOR_YELLOW live in
- * display_colors.h (shared with the widgets). Roles: purple = keys, red = back,
- * blue = nav/rotate/armed, green = settings +, yellow = settings -. */
-#define COLOR_CHARCOAL 0x101216   /* button fill */
-#define COLOR_DARK_GREY 0x303030  /* dim legend/hint text */
-#define COLOR_GREY 0x505050       /* brighter hint glyphs / greyed-out controls */
-#define COLOR_NEAR_BLACK 0x0b0d10 /* scroll-track fill (below button fill) */
-#define COLOR_SLATE 0x2e3238      /* scroll-track outline */
+/* Shared colour palette lives in display_colors.h (included below via touch_ui.h).
+ * Touch UI roles: PRIMARY = keys, RED = back/exit, ACCENT = nav/rotate/armed,
+ * GREEN = settings +, YELLOW = settings -. Surface colours also in display_colors.h. */
 
 /* The Waveshare 1.69" glass has rounded corners, R5.15mm ~= 44px at this panel's
  * ~0.117mm/px. Chrome drawn inside the corner arcs gets physically clipped, so the
@@ -161,6 +157,44 @@ void prospector_touch_set_orientation(int rot);
 bool prospector_touch_tap(int sx, int sy, bool hold); /* touch_input.c -> touch_nav.c */
 
 /* ------------------------------- views -------------------------------- */
+// NORMAL
+extern void tap_normal(int cell);
+
+// HOME
+extern void build_home(void);
+extern void tap_home(int cell);
+extern void hold_home(int cell);
+
+// SETTINGS
+extern void build_settings(void);
+extern void tap_settings(int cell);
+
+// MEDIA
+extern void build_media(void);
+extern void tap_media(int cell);
+
+// FKEYS / SYMBOLS
+extern void build_fkeys(void);
+extern void tap_fkeys(int cell);
+extern void build_symbols(void);
+extern void tap_symbols(int cell);
+
+// NUMPAD
+extern void build_numpad(void);
+extern void tap_numpad(int cell);
+
+// MODIFIERS
+extern void build_modifiers(void);
+extern void tap_modifiers(int cell);
+
+// PAD
+extern void build_pad(void);
+extern void tap_pad(int cell);
+
+// TRACKPAD
+extern void build_trackpad(void);
+extern void tap_trackpad(int cell);
+
 // CALCULATOR
 extern void build_calc(void);
 extern void tap_calc(int cell);

@@ -18,8 +18,8 @@ static void layer_display_update_cb(struct layer_display_state state) {
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         for (int i = 0; i < LAYER_DOT_COUNT; i++) {
             lv_color_t color = (i == state.index)
-                ? lv_color_hex(DISPLAY_COLOR_LAYER_DOT_ACTIVE)
-                : lv_color_hex(DISPLAY_COLOR_LAYER_DOT_INACTIVE);
+                ? lv_color_hex(COLOR_LAYER_DOT_ACTIVE)
+                : lv_color_hex(COLOR_LAYER_DOT_INACTIVE);
             lv_obj_set_style_bg_color(widget->dots[i], color, LV_PART_MAIN);
         }
     }
@@ -55,7 +55,7 @@ int zmk_widget_layer_display_init(struct zmk_widget_layer_display *widget, lv_ob
 
     for (int i = 0; i < LAYER_DOT_COUNT; i++) {
         widget->dots[i] = lv_obj_create(widget->obj);
-        lv_obj_set_style_bg_color(widget->dots[i], lv_color_hex(DISPLAY_COLOR_LAYER_DOT_INACTIVE), LV_PART_MAIN);
+        lv_obj_set_style_bg_color(widget->dots[i], lv_color_hex(COLOR_LAYER_DOT_INACTIVE), LV_PART_MAIN);
         lv_obj_set_style_bg_opa(widget->dots[i], LV_OPA_COVER, LV_PART_MAIN);
         lv_obj_set_style_border_width(widget->dots[i], 0, LV_PART_MAIN);
         lv_obj_set_style_radius(widget->dots[i], 2, LV_PART_MAIN);

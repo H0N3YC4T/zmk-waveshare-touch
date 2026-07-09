@@ -7,7 +7,7 @@ if(CONFIG_SHIELD_PROSPECTOR_ADAPTER)
   zephyr_library_include_directories(${CMAKE_SOURCE_DIR}/include)
   zephyr_library_include_directories(${ZEPHYR_CURRENT_MODULE_DIR}/include)
   zephyr_library_include_directories(${ZEPHYR_CURRENT_CMAKE_DIR}/include)
-  zephyr_library_include_directories(include src/touch src/widgets)
+  zephyr_library_include_directories(include src src/touch src/widgets)
 
   # Status screen entry point + supporting features
   zephyr_library_sources(src/status_screen.c)
@@ -18,10 +18,20 @@ if(CONFIG_SHIELD_PROSPECTOR_ADAPTER)
     zephyr_library_sources(src/modifier_order.c)
   endif()
 
-  # Touch UI, one feature per file (see src/touch/touch_ui.h). touch_input.c is
-  # the CST816S gesture driver, internally gated on the cst816s DT node.
+  # Touch UI (see src/touch/touch_ui.h):
+  #   touch_main.c        -- view registry + build_view() dispatcher
+  #   tools/touch_draw.c  -- grid geometry + button drawing
+  #   tools/touch_input.c -- CST816S gesture driver (gated on cst816s DT node)
+  #   tools/touch_keys.c  -- workqueue key/macro sending (thread-safety boundary)
+  #   tools/touch_nav.c   -- tap routing, view state, idle timeout
+  #   tools/touch_rotation.c -- 4-step display rotation
+  #   views/              -- per-view renderers (one file per view)
   file(GLOB touch_sources src/touch/*.c)
+  file(GLOB tool_sources src/touch/tools/*.c)
+  file(GLOB view_sources src/touch/views/*.c)
   zephyr_library_sources(${touch_sources})
+  zephyr_library_sources(${tool_sources})
+  zephyr_library_sources(${view_sources})
 
   # Status-screen widgets (OPERATOR layout)
   file(GLOB widget_sources src/widgets/*.c)

@@ -13,7 +13,7 @@
 #include <zmk/behavior_queue.h>
 #include <zmk/keymap.h> /* ZMK_KEYMAP_EXTRACT_BINDING (PAD bindings) */
 
-#include "touch_ui.h"
+#include "../touch_ui.h"
 
 uint8_t pending_mods; /* one-shot, applied to the next key sent */
 

@@ -52,14 +52,14 @@ static const char *const lbls[16] = {
 /* DISPLAY FUNCTIONS */
 static void build_calc(void)
 {
-  draw_cell(0, 0, 4, calc_expr[0] ? calc_expr : "0", COLOR_BLUE); /* display, spans row */
+  draw_cell(0, 0, 4, calc_expr[0] ? calc_expr : "0", COLOR_ACCENT); /* display, spans row */
 
   for (int c = 0; c < 16; c++)
   {
     uint32_t color = (c == 12)      ? COLOR_RED     /* backspace */
                      : (c == 14)    ? COLOR_GREEN   /* = evaluate */
-                     : (c % 4 == 3) ? COLOR_BLUE    /* operators */
-                                    : COLOR_PURPLE; /* digits */
+                     : (c % 4 == 3) ? COLOR_ACCENT    /* operators */
+                                    : COLOR_PRIMARY; /* digits */
     draw_cell(1 + c / 4, c % 4, 1, lbls[c], color);
   }
 }

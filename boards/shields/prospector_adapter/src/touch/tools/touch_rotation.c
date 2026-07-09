@@ -13,7 +13,7 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/display.h>
 
-#include "touch_ui.h"
+#include "../touch_ui.h"
 
 uint8_t ui_rot; /* 0..3 = 0/90/180/270 deg CW; 0 = calibrated landscape */
 

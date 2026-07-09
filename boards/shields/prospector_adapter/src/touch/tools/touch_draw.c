@@ -1,6 +1,6 @@
 /* Grid geometry + button drawing for the touch UI. */
 
-#include "touch_ui.h"
+#include "../touch_ui.h"
 
 int grid_rows = 2; /* rows in the current screen's grid (2 / 3 / 4) */
 int grid_cols = 3; /* cols in the current screen's grid (2 / 3 / 4) */
@@ -50,7 +50,8 @@ static void draw_cell_impl(int row, int col, int w_cells, const char *text, uint
   }
   lv_label_set_text(l, text);
   lv_obj_set_style_text_font(l, &lv_font_montserrat_20, LV_PART_MAIN);
-  lv_obj_set_style_text_color(l, lv_color_hex(filled ? 0x000000 : accent), LV_PART_MAIN);
+  lv_obj_set_style_text_color(l, lv_color_hex(filled ? COLOR_BACKGROUND : accent), LV_PART_MAIN);
+
   lv_obj_set_style_text_letter_space(l, 1, LV_PART_MAIN);
   lv_obj_center(l);
 }
@@ -131,7 +132,7 @@ void draw_key_page(const char *const *lbls, int n, int page)
     int idx = page * KEYS_PER_PAGE + i;
     if (idx < n)
     {
-      draw_cell(key_cells[i] / 3, key_cells[i] % 3, 1, lbls[idx], COLOR_PURPLE);
+      draw_cell(key_cells[i] / 3, key_cells[i] % 3, 1, lbls[idx], COLOR_PRIMARY);
     }
   }
   if (page == 0)
@@ -140,10 +141,10 @@ void draw_key_page(const char *const *lbls, int n, int page)
   }
   else
   {
-    draw_cell(0, 1, 1, LV_SYMBOL_UP, COLOR_BLUE); /* Prev page */
+    draw_cell(0, 1, 1, LV_SYMBOL_UP, COLOR_ACCENT); /* Prev page */
   }
   if (pages > 1)
   {
-    draw_cell(2, 1, 1, LV_SYMBOL_DOWN, COLOR_BLUE); /* Next page (cell 7) */
+    draw_cell(2, 1, 1, LV_SYMBOL_DOWN, COLOR_ACCENT); /* Next page (cell 7) */
   }
 }

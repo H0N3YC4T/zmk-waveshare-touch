@@ -44,21 +44,21 @@ uint8_t prospector_brightness_get(void) {
 
 static uint8_t current_brightness = 100;
 
-#define SENSOR_MIN      0       // Minimum sensor reading
-#define SENSOR_MAX      100   // Maximum sensor reading
-#define PWM_MIN         1       // Minimum PWM duty cycle (%) - keep display visible
-#define PWM_MAX         100     // Maximum PWM duty cycle (%)
+#define SENSOR_MIN              0    // minimum sensor reading
+#define SENSOR_MAX              100  // maximum sensor reading
+#define PWM_MIN                 1    // minimum PWM duty cycle (%) — keep display visible
+#define PWM_MAX                 100  // maximum PWM duty cycle (%)
 
-#define FADE_STEP                        1
-#define FADE_SLEEP_BRIGHTEN_MS           3
-#define FADE_SLEEP_DARKEN_MS             10
-#define FADE_THRESHOLD                   10
+#define FADE_STEP               1
+#define FADE_SLEEP_BRIGHTEN_MS  3
+#define FADE_SLEEP_DARKEN_MS    10
+#define FADE_THRESHOLD          10
 
-#define NORMAL_SAMPLE_SLEEP_MS           100
+#define NORMAL_SAMPLE_SLEEP_MS  100
 
-#define BURST_SAMPLE_SLEEP_MS            30
-#define BURST_SAMPLE_TIMEOUT             10
-#define BURST_SAMPLE_CONSECUTIVE         3
+#define BURST_SAMPLE_SLEEP_MS   30
+#define BURST_SAMPLE_TIMEOUT    10
+#define BURST_SAMPLE_CONSECUTIVE 3
 
 uint8_t map_light_to_pwm(int32_t sensor_reading) {
     // Handle invalid/error readings

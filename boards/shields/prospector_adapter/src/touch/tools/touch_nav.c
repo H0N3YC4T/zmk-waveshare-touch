@@ -1,8 +1,8 @@
 /* Tap routing, view state, and the idle timeout for the touch UI. Owns the
  * full-screen overlay and the display-thread timer that drains taps. All per-view
- * behaviour comes from view_defs[] (touch_views.c) -- this file only routes. */
+ * behaviour comes from view_defs[] (touch_main.c) -- this file only routes. */
 
-#include "touch_ui.h"
+#include "../touch_ui.h"
 
 lv_obj_t *touch_overlay;
 enum ui_view cur_view = VIEW_NORMAL;
@@ -100,7 +100,7 @@ void touch_ui_attach(lv_obj_t *screen) {
     touch_overlay = lv_obj_create(screen);
     lv_obj_set_size(touch_overlay, SCR_W, SCR_H);
     lv_obj_set_pos(touch_overlay, 0, 0);
-    lv_obj_set_style_bg_color(touch_overlay, lv_color_hex(0x000000), LV_PART_MAIN);
+    lv_obj_set_style_bg_color(touch_overlay, lv_color_hex(COLOR_BACKGROUND), LV_PART_MAIN);
     lv_obj_set_style_bg_opa(touch_overlay, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_set_style_border_width(touch_overlay, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_all(touch_overlay, 0, LV_PART_MAIN);

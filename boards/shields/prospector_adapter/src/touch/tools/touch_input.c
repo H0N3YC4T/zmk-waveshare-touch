@@ -34,7 +34,7 @@
 /* Shared UI seam: TP_SCROLL_ZONE (the lane build_trackpad draws must match the
  * boundary tested here) + prototype checking of the prospector_touch* hooks
  * this file implements. */
-#include "touch_ui.h"
+#include "../touch_ui.h"
 
 LOG_MODULE_REGISTER(mk1_touch, LOG_LEVEL_INF);
 
