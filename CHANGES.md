@@ -12,6 +12,26 @@ needs a commit + push + pin bump there. Hardware: Seeed XIAO nRF52840 + Waveshar
 The CST816S gesture driver (`touch_input.c`) lives HERE now (adapter `src/`), moved in from
 the keyboard repo — both sides of every touch seam are in this repo.
 
+## Long-press + on-dongle calculator (2026-07-09)
+
+**Long-press routing.** The touch driver now flags a press held >= `TOUCH_HOLD_MS` (700ms) as a
+hold: `prospector_touch_tap()` gained a `hold` arg, carried through the tap mailbox on a spare
+bit, and `view_defs[]` gained an `on_hold(cell)` slot. A view with no `on_hold` treats holds as
+taps (harmless everywhere), so only HOME opts in. On HOME: **hold 123 -> CALC**, **hold settings
+-> the dongle's bootloader** (fires ZMK's built-in `bootloader` reset behavior by its DT name via
+the existing key-ring path, so it does the right reset for whatever bootloader the board uses --
+no board-specific magic in this module). Other HOME cells fall through to their normal tap.
+
+**CALC** (`VIEW_CALC`) is a self-contained calculator -- all maths on the XIAO's M4F, the host is
+never touched. 5x4 grid: row 0 is the display (spans all four columns; a tap there exits to
+HOME), rows 1-4 mirror the numpad except bottom-left back -> backspace and enter -> `=`
+(evaluate). Integer input, `+ - * /` with proper precedence via a small recursive-descent
+evaluator (`calc_expr`/`calc_term`/`calc_num` over the display string), doubles on the FPU,
+result formatted with `snprintf("%.6g")` (picolibc double-printf is enabled in this build).
+Divide-by-zero / malformed input shows `Error`; after a result a digit restarts and an operator
+continues from it. No parentheses, no unary minus, no decimal-point key (results can still be
+fractional). Needs `CONFIG_LV_USE_IMAGE`-independent label rendering only.
+
 ## Flatten the menu: HOME goes 3x3, the HUB sub-menu is gone (2026-07-08)
 
 Every screen is now one tap from HOME and one tap back. HOME (2x3) + HUB (2x3) collapse into a

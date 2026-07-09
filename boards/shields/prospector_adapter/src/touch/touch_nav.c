@@ -8,7 +8,7 @@ lv_obj_t *touch_overlay;
 enum ui_view cur_view = VIEW_NORMAL;
 int cur_page;
 
-static atomic_t pending_tap = ATOMIC_INIT(0); /* 0 = none, else (bit20 | sx<<10 | sy) */
+static atomic_t pending_tap = ATOMIC_INIT(0); /* 0 = none, else (bit20 | hold<<21 | sx<<10 | sy) */
 static int64_t last_tap_ms;
 
 /* Weak fallbacks: the trackpad sensitivity lives in touch_input.c; get() < 0 means
@@ -19,8 +19,9 @@ __weak void prospector_touchpad_sens_step(int delta) { ARG_UNUSED(delta); }
 /* Called from the touch workqueue thread. Stash the packed tap coords; the lv_timer
  * drains + maps them to a cell on the display thread (no LVGL off-thread). Returns
  * true = the on-screen UI owns the tap. */
-bool prospector_touch_tap(int sx, int sy) {
-    atomic_set(&pending_tap, (1 << 20) | ((sx & 0x3FF) << 10) | (sy & 0x3FF));
+bool prospector_touch_tap(int sx, int sy, bool hold) {
+    atomic_set(&pending_tap,
+               (1 << 20) | (hold ? (1 << 21) : 0) | ((sx & 0x3FF) << 10) | (sy & 0x3FF));
     return true;
 }
 
@@ -75,8 +76,16 @@ static void ui_timer_cb(lv_timer_t *timer) {
     int v = atomic_set(&pending_tap, 0);
     if (v & (1 << 20)) {
         int sx = (v >> 10) & 0x3FF, sy = v & 0x3FF;
+        int cell = logical_cell(cell_from_coords(sx, sy));
         last_tap_ms = k_uptime_get();
-        view_defs[cur_view].on_tap(logical_cell(cell_from_coords(sx, sy)));
+        /* A long-press routes to on_hold when the view defines one; otherwise it
+         * falls through to on_tap, so holds are harmless on views that ignore them. */
+        void (*on_hold)(int) = view_defs[cur_view].on_hold;
+        if ((v & (1 << 21)) && on_hold != NULL) {
+            on_hold(cell);
+        } else {
+            view_defs[cur_view].on_tap(cell);
+        }
     }
 
     if (view_defs[cur_view].idle_timeout &&

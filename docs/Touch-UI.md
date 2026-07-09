@@ -30,6 +30,9 @@ graph TD
     HOME -->|7| PAD
     HOME -->|8| MEDIA
 
+    HOME -.->|hold 2| CALC
+    HOME -.->|hold 4| BOOT[bootloader]
+
     HOME -.->|1| NORMAL
     FKEYS -.->|1 on page 0| HOME
     NUMPAD -.->|12| HOME
@@ -50,7 +53,8 @@ does nothing.
 
 | Screen | Grid | Cells |
 | --- | --- | --- |
-| HOME | 3x3 | 0 = Fn · 1 = back · 2 = 123 · 3 = #$% · 4 = settings · 5 = trackpad · 6 = MOD · 7 = PAD (keyboard icon; greyed if nothing bound) · 8 = media |
+| HOME | 3x3 | 0 = Fn · 1 = back · 2 = 123 · 3 = #$% · 4 = settings · 5 = trackpad · 6 = MOD · 7 = PAD (keyboard icon; greyed if nothing bound) · 8 = media · **hold 2** = calculator · **hold 4** = bootloader |
+| CALC | 5x4 | on-dongle calculator (all maths local). Row 0 = display (spans, tap = exit to HOME); rows 1-4 = 7 8 9 + / 4 5 6 − / 1 2 3 × / ⌫ 0 = ÷. Integer input, +−×÷ with precedence; = evaluates, ⌫ backspaces, /0 or bad input = Error |
 | SETTINGS | 3x3 | 0 / 3 = sensitivity + / − · 2 / 5 = brightness + / − · 4 = rotate 90° CW per tap · 6 / 8 = readouts (blue, not tappable: sens 0–10, brightness %) · 7 = empty |
 | MEDIA | 2x3 | 0 = vol− · 2 = vol+ · 3 = prev · 4 = play/pause · 5 = next |
 | F-KEYS | 3x3 | F1–F12, 7 keys per page · cell 1 = prev page (back to HOME on page 0) · cell 7 = next page (cyclic) |

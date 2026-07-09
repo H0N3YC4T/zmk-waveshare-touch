@@ -23,6 +23,7 @@
 #define SCR_W 280
 #define SCR_H 240
 #define TOUCH_TIMEOUT_MS 30000
+#define TOUCH_HOLD_MS 700 /* press-and-lift >= this = a hold, not a tap */
 #define BRIGHTNESS_STEP 10
 #define KEYS_PER_PAGE 7
 
@@ -71,6 +72,7 @@ enum ui_view
   VIEW_MODIFIERS,
   VIEW_TRACKPAD,
   VIEW_PAD,
+  VIEW_CALC,
   VIEW_COUNT,
 };
 
@@ -84,6 +86,7 @@ struct view_def
   bool rearrange_2x3;          /* portrait: re-arrange the 2x3 grid to 3x2 */
   bool idle_timeout;           /* return to NORMAL after TOUCH_TIMEOUT_MS idle */
   bool keeps_mods;             /* armed one-shot mods survive entering this view */
+  void (*on_hold)(int cell);   /* long-press handler; NULL = holds act as taps */
 };
 extern const struct view_def view_defs[VIEW_COUNT];
 
@@ -155,3 +158,4 @@ extern uint8_t prospector_brightness_get(void);
 int prospector_touchpad_sens_get(void);
 void prospector_touchpad_sens_step(int delta);
 void prospector_touch_set_orientation(int rot);
+bool prospector_touch_tap(int sx, int sy, bool hold); /* touch_input.c -> touch_nav.c */

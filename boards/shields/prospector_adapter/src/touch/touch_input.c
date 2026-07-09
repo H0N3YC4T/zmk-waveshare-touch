@@ -123,16 +123,19 @@ static const char *const touch_macro_dev[3] = {
 
 static int32_t cur_x, cur_y, start_x, start_y;
 static bool active;
+static int64_t down_ms;    /* uptime at touch-down, for hold detection */
 static int32_t pending_sx, pending_sy;
+static bool pending_hold;  /* the pending tap was a long-press */
 
 /* Implemented by the prospector fork when the on-screen touch UI is present:
  * given the RAW rendered-screen coords (sx,sy; 280x240) it maps them to a cell
  * per whichever screen's grid is showing (2x3, 3x3, or 4x4 for the numpad), then
  * navigates / fires and returns true if it consumed the tap. Weak default (no
  * fork UI) returns false, so we fall back to the fixed 2x3 macro grid below. */
-__weak bool prospector_touch_tap(int sx, int sy) {
+__weak bool prospector_touch_tap(int sx, int sy, bool hold) {
     ARG_UNUSED(sx);
     ARG_UNUSED(sy);
+    ARG_UNUSED(hold);
     return false;
 }
 
@@ -163,7 +166,7 @@ static void touch_fire(struct k_work *work) {
 
     /* Give the on-screen touch UI (prospector fork) first refusal: it maps the
      * raw screen coords to a cell per whichever screen (grid) is showing. */
-    if (prospector_touch_tap(pending_sx, pending_sy)) {
+    if (prospector_touch_tap(pending_sx, pending_sy, pending_hold)) {
         return;
     }
 
@@ -295,6 +298,7 @@ static void touch_cb(struct input_event *evt, void *user_data) {
             active = true;
             start_x = cur_x;
             start_y = cur_y;
+            down_ms = k_uptime_get();
 #if IS_ENABLED(CONFIG_ZMK_POINTING)
             tp_start_sx = panel_to_screen_x(start_x, start_y);
             tp_start_sy = panel_to_screen_y(start_x, start_y);
@@ -354,9 +358,10 @@ static void touch_cb(struct input_event *evt, void *user_data) {
                 iabs32(cur_y - start_y) < TOUCH_TAP_MAX_TRAVEL) {
                 pending_sx = panel_to_screen_x(cur_x, cur_y);
                 pending_sy = panel_to_screen_y(cur_x, cur_y);
-                LOG_INF("tap raw(%d,%d) screen(%d,%d) -> cell %d",
+                pending_hold = (k_uptime_get() - down_ms) >= TOUCH_HOLD_MS;
+                LOG_INF("tap raw(%d,%d) screen(%d,%d) -> cell %d%s",
                         cur_x, cur_y, pending_sx, pending_sy,
-                        touch_cell(pending_sx, pending_sy));
+                        touch_cell(pending_sx, pending_sy), pending_hold ? " (hold)" : "");
                 /* Always dispatch -- the fork UI may want a tap anywhere (e.g.
                  * to open the macro screen from the main screen). */
                 k_work_submit(&touch_work);
