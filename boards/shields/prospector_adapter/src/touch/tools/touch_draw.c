@@ -18,7 +18,10 @@ static lv_obj_t *make_btn(int row, int col, int w_cells, int h_cells, uint32_t a
   lv_coord_t ch = (scr_h() - 2 * UI_PAD) / grid_rows;
   lv_coord_t cw = cwc * w_cells;
   lv_coord_t ch_total = ch * h_cells;
-  lv_coord_t bw = cw * pct / 100, bh = ch_total * 4 / 5;
+  lv_coord_t pad_w = cwc * (100 - pct) / 200;
+  lv_coord_t pad_h = ch * 20 / 200; /* 80% default means 10% padding per side */
+  lv_coord_t bw = cw - 2 * pad_w;
+  lv_coord_t bh = ch_total - 2 * pad_h;
 
   lv_obj_t *b = lv_obj_create(touch_overlay);
   if (b == NULL)

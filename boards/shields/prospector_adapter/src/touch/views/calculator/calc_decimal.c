@@ -119,11 +119,11 @@ const struct page_cell calc_cells_alt[] = {
     {0, 3, 1, 1, LV_SYMBOL_BACKSPACE, NULL, COLOR_RED, ACT_CUSTOM,
      .arg.func = tap_calc_backspace_cb}, // Back/clear
 
-    {1, 0, 1, 1, "()", NULL, COLOR_PRIMARY, ACT_CUSTOM,
-     .arg.func = tap_calc_bracket},
+    {1, 0, 1, 1, "7", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_0},
     {1, 1, 1, 1, "8", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_1},
     {1, 2, 1, 1, "9", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_2},
-    {1, 3, 1, 1, "+", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_3},
+    {1, 3, 1, 1, "()", NULL, COLOR_ACCENT, ACT_CUSTOM,
+     .arg.func = tap_calc_bracket},
 
     {2, 0, 1, 1, "4", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_4},
     {2, 1, 1, 1, "5", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_5},

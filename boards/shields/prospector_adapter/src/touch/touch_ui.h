@@ -96,6 +96,7 @@ struct view_def
   bool idle_timeout;           /* return to NORMAL after TOUCH_TIMEOUT_MS idle */
   bool keeps_mods;             /* armed one-shot mods survive entering this view */
   void (*on_hold)(int cell);   /* long-press handler; NULL = holds act as taps */
+  void (*on_enter)(void);      /* called once when the view is shown */
 };
 
 /* ----------------------------- shared state ------------------------------- */

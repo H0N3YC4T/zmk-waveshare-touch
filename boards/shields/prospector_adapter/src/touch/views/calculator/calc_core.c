@@ -9,7 +9,7 @@ bool bracket_open;
 
 bool bin_mode;
 bool bin_converted;
-int bin_word_size = 32;
+int bin_word_size = 8;
 
 
 
@@ -32,10 +32,7 @@ void calc_update_display(void) {
     lv_obj_t *l = lv_obj_get_child(cur_view_btns[0], 0);
     if (l) {
       if (bin_mode) {
-        char disp[64];
-        snprintf(disp, sizeof(disp), "%s [%db]", calc_expr[0] ? calc_expr : "0",
-                 bin_word_size);
-        lv_label_set_text(l, disp);
+        lv_label_set_text(l, calc_expr[0] ? calc_expr : "0");
       } else {
         lv_label_set_text(l, calc_expr[0] ? calc_expr : "0");
       }
@@ -44,14 +41,14 @@ void calc_update_display(void) {
 }
 
 static void hold_calc(int cell) {
-  if (cell == 3) // Backspace
-  {
+  if ((cur_page < 2 && cell == 3) || (cur_page == 2 && cell == 18)) {
     calc_expr[0] = '\0';
     calc_shown = false;
     bracket_open = false;
     calc_update_display();
+  } else if ((cur_page == 0 && cell == 19) || (cur_page == 2 && cell == 7)) {
+    tap_calc_percent(cell);
   } else {
-    // Fallback to regular tap behavior for other buttons
     tap_declarative(cell);
   }
 }
@@ -264,6 +261,33 @@ void calc_tap_backspace(void) {
 }
 
 static void calc_print_result(float result) {
+  if (bin_mode) {
+    long long val = (long long)(result > 0 ? result + 0.5f : result - 0.5f);
+    unsigned long long mask = bin_word_size == 64
+                                  ? 0xFFFFFFFFFFFFFFFFULL
+                                  : (1ULL << bin_word_size) - 1;
+    val = val & mask;
+    if (val == 0) {
+      snprintf(calc_expr, sizeof(calc_expr), "0");
+    } else {
+      char buf[65];
+      int i = 0;
+      unsigned long long u = val;
+      while (u > 0 && i < 64) {
+        buf[i++] = (u % 2) ? '1' : '0';
+        u /= 2;
+      }
+      buf[i] = '\0';
+      for (int j = 0; j < i / 2; j++) {
+        char tmp = buf[j];
+        buf[j] = buf[i - 1 - j];
+        buf[i - 1 - j] = tmp;
+      }
+      snprintf(calc_expr, sizeof(calc_expr), "%s", buf);
+    }
+    return;
+  }
+
   int is_negative = result < 0;
   result = is_negative ? -result : result;
 
@@ -352,10 +376,19 @@ void calc_ensure_binary(void) {
 
 
 
+static void calc_on_enter(void) {
+  calc_expr[0] = '\0';
+  calc_shown = false;
+  bracket_open = false;
+  bin_mode = false;
+  bin_converted = false;
+}
+
 const struct view_def view_calc = {
     .cells = calc_cells,
     .pages = calc_pages,
     .num_pages = 3,
     .build = calc_update_display,
     .on_hold = hold_calc,
+    .on_enter = calc_on_enter,
 };

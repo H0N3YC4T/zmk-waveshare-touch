@@ -4,14 +4,14 @@
 void tap_calc_ws(int cell) {
   ARG_UNUSED(cell);
   calc_ensure_binary();
-  if (bin_word_size == 64)
-    bin_word_size = 32;
-  else if (bin_word_size == 32)
-    bin_word_size = 16;
-  else if (bin_word_size == 16)
+  if (bin_word_size == 16)
     bin_word_size = 8;
+  else if (bin_word_size == 8)
+    bin_word_size = 4;
+  else if (bin_word_size == 4)
+    bin_word_size = 2;
   else
-    bin_word_size = 64;
+    bin_word_size = 16;
   bin_converted = false;
 
   // Re-evaluate to remask correctly
@@ -90,36 +90,27 @@ void tap_calc_rsh(int cell) {
 }
 
 const struct page_cell calc_cells_alt2[] = {
-    {0, 0, 1, 3, "0", NULL, COLOR_ACCENT, ACT_GO_VIEW,
+    {0, 0, 1, 4, "0", NULL, COLOR_ACCENT, ACT_GO_VIEW,
      .arg.view = &view_home}, // Display row
-    {0, 3, 1, 1, LV_SYMBOL_BACKSPACE, NULL, COLOR_RED, ACT_CUSTOM,
-     .arg.func = tap_calc_backspace_cb}, // Back/clear
 
-    {1, 0, 1, 1, "&", NULL, COLOR_PRIMARY, ACT_CUSTOM,
-     .arg.func = tap_calc_and},
-    {1, 1, 1, 1, "|", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_or},
-    {1, 2, 1, 1, "^", NULL, COLOR_PRIMARY, ACT_CUSTOM,
-     .arg.func = tap_calc_xor},
-    {1, 3, 1, 1, "+", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_3},
+    {1, 0, 1, 1, "+", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_3},
+    {1, 1, 1, 1, "-", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_7},
+    {1, 2, 1, 1, "*", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_11},
+    {1, 3, 1, 1, "/", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_15},
 
-    {2, 0, 1, 1, "~", NULL, COLOR_PRIMARY, ACT_CUSTOM,
-     .arg.func = tap_calc_not},
-    {2, 1, 1, 1, "<", NULL, COLOR_PRIMARY, ACT_CUSTOM,
-     .arg.func = tap_calc_lsh},
-    {2, 2, 1, 1, ">", NULL, COLOR_PRIMARY, ACT_CUSTOM,
-     .arg.func = tap_calc_rsh},
-    {2, 3, 1, 1, "-", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_7},
+    {2, 0, 1, 1, "&", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_and},
+    {2, 1, 1, 1, "|", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_or},
+    {2, 2, 1, 1, "~", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_not},
+    {2, 3, 1, 1, "^", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_xor},
 
-    {3, 0, 1, 1, "1", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_8},
-    {3, 1, 1, 1, "%", NULL, COLOR_PRIMARY, ACT_CUSTOM,
-     .arg.func = tap_calc_percent},
-    {3, 2, 1, 1, "WS", NULL, COLOR_YELLOW, ACT_CUSTOM, .arg.func = tap_calc_ws},
-    {3, 3, 1, 1, "*", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_11},
+    {3, 0, 1, 1, "<", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_lsh},
+    {3, 1, 1, 1, "0", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_13},
+    {3, 2, 1, 1, "1", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_8},
+    {3, 3, 1, 1, ">", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_rsh},
 
-    {4, 0, 1, 1, LV_SYMBOL_REFRESH, NULL, COLOR_YELLOW, ACT_CUSTOM,
-     .arg.func = tap_calc_to_dec},
-    {4, 1, 1, 1, "0", NULL, COLOR_PRIMARY, ACT_CUSTOM, .arg.func = tap_calc_13},
-    {4, 2, 1, 1, "=", NULL, COLOR_GREEN, ACT_CUSTOM, .arg.func = tap_calc_14},
-    {4, 3, 1, 1, "/", NULL, COLOR_ACCENT, ACT_CUSTOM, .arg.func = tap_calc_15},
+    {4, 0, 1, 1, LV_SYMBOL_PREV, NULL, COLOR_YELLOW, ACT_CUSTOM, .arg.func = tap_calc_to_dec},
+    {4, 1, 1, 1, "WS", NULL, COLOR_YELLOW, ACT_CUSTOM, .arg.func = tap_calc_ws},
+    {4, 2, 1, 1, LV_SYMBOL_BACKSPACE, NULL, COLOR_RED, ACT_CUSTOM, .arg.func = tap_calc_backspace_cb},
+    {4, 3, 1, 1, "=", NULL, COLOR_GREEN, ACT_CUSTOM, .arg.func = tap_calc_14},
 
     {0}};

@@ -63,6 +63,7 @@ void show_view(const struct view_def *v) {
         grid_cols = 1;
         lv_obj_add_flag(touch_overlay, LV_OBJ_FLAG_HIDDEN);
     } else {
+        if (v->on_enter) v->on_enter();
         build_view(v);
         lv_obj_clear_flag(touch_overlay, LV_OBJ_FLAG_HIDDEN);
     }
