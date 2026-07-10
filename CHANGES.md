@@ -12,6 +12,18 @@ needs a commit + push + pin bump there. Hardware: Seeed XIAO nRF52840 + Waveshar
 The CST816S gesture driver (`touch_input.c`) lives HERE now (adapter `src/`), moved in from
 the keyboard repo — both sides of every touch seam are in this repo.
 
+## Calculator correctness fixes (2026-07-11)
+
+- **Engine float -> double.** The FPv4-SP FPU is single-precision, but a calculator waits on
+  finger taps -- softfloat doubles cost nothing perceptible and lift exact-integer range from
+  2^24 (~16.7M, where 99999999 displayed as 100000000) to 2^53.
+- **Strict end-of-parse.** All four parse sites now go through `calc_run_parser()`, which flags
+  unconsumed trailing input as an error -- malformed expressions show `Error` instead of
+  silently returning the partial result (e.g. `5<2` used to display `5`).
+- **Shift buttons push both chars.** `<<`/`>>` inserted a single `<`/`>` per tap while the
+  parser reads shifts as two chars, so one tap gave a silently wrong answer (via the bug
+  above). One tap now inserts the pair, and backspace deletes a shift as one keystroke.
+
 ## Long-press + on-dongle calculator (2026-07-09)
 
 **Long-press routing.** The touch driver now flags a press held >= `TOUCH_HOLD_MS` (700ms) as a

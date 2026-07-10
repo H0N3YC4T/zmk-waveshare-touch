@@ -18,15 +18,15 @@ static int bin_word_size = 8;
 /* ========================================================================== */
 /* FORWARD DECLARATIONS (Required for internal cyclic calls)                  */
 /* ========================================================================== */
-static float parse_expr(void);
-static void calc_print_result(float result);
+static double parse_expr(void);
+static void calc_print_result(double result);
 static void calc_update_display(void);
 
 /* ========================================================================== */
 /* MATH ENGINE & PARSER                                                       */
 /* ========================================================================== */
-static float parse_factor(void) {
-  float sum = 0;
+static double parse_factor(void) {
+  double sum = 0;
   bool num_empty = true;
   bool is_negative = false;
   bool is_bitwise_not = false;
@@ -49,7 +49,7 @@ static float parse_factor(void) {
     if (*calc_cp == ')') calc_cp++;
     else eval_okay = false;
     sum = is_negative ? -sum : sum;
-    if (is_bitwise_not) sum = (float)(~(long long)sum);
+    if (is_bitwise_not) sum = (double)(~(long long)sum);
     return sum;
   }
 
@@ -67,10 +67,10 @@ static float parse_factor(void) {
     }
     if (*calc_cp == '.') {
       calc_cp++;
-      float fraction = 0.1f;
+      double fraction = 0.1;
       while (*calc_cp >= '0' && *calc_cp <= '9') {
         sum += (*calc_cp - '0') * fraction;
-        fraction /= 10.0f;
+        fraction /= 10.0;
         calc_cp++;
         num_empty = false;
       }
@@ -83,7 +83,7 @@ static float parse_factor(void) {
       long long n = (long long)sum;
       if (n > 20) eval_okay = false;
       else {
-        float f = 1;
+        double f = 1;
         for (long long i = 2; i <= n; i++) f *= i;
         sum = f;
       }
@@ -94,19 +94,19 @@ static float parse_factor(void) {
 
   if (num_empty) eval_okay = false;
   sum = is_negative ? -sum : sum;
-  if (is_bitwise_not) sum = (float)(~(long long)sum);
+  if (is_bitwise_not) sum = (double)(~(long long)sum);
   return sum;
 }
 
-static float parse_term(void) {
-  float a = parse_factor();
+static double parse_term(void) {
+  double a = parse_factor();
   while (eval_okay && (*calc_cp == '*' || *calc_cp == '/' || *calc_cp == '%')) {
     char op = *calc_cp++;
-    float b = parse_factor();
+    double b = parse_factor();
     if (op == '*') a *= b;
     else if (op == '%') {
       if (b == 0) { eval_okay = false; a = 0; }
-      else a = (float)((long long)a % (long long)b);
+      else a = (double)((long long)a % (long long)b);
     } else if (b == 0) {
       eval_okay = false; a = 0;
     } else a /= b;
@@ -114,64 +114,75 @@ static float parse_term(void) {
   return a;
 }
 
-static float parse_add_sub(void) {
-  float a = parse_term();
+static double parse_add_sub(void) {
+  double a = parse_term();
   while (eval_okay && (*calc_cp == '+' || *calc_cp == '-')) {
     char op = *calc_cp++;
-    float b = parse_term();
+    double b = parse_term();
     a = (op == '+') ? a + b : a - b;
   }
   return a;
 }
 
-static float parse_shift(void) {
-  float a = parse_add_sub();
+static double parse_shift(void) {
+  double a = parse_add_sub();
   while (eval_okay && ((*calc_cp == '<' && *(calc_cp + 1) == '<') ||
                        (*calc_cp == '>' && *(calc_cp + 1) == '>'))) {
     char op = *calc_cp;
     calc_cp += 2;
-    float b = parse_add_sub();
+    double b = parse_add_sub();
     long long shift_amt = (long long)b;
     if (shift_amt < 0 || shift_amt > 63) eval_okay = false;
     else {
-      if (op == '<') a = (float)((long long)a << shift_amt);
-      else a = (float)((long long)a >> shift_amt);
+      if (op == '<') a = (double)((long long)a << shift_amt);
+      else a = (double)((long long)a >> shift_amt);
     }
   }
   return a;
 }
 
-static float parse_bitwise_and(void) {
-  float a = parse_shift();
+static double parse_bitwise_and(void) {
+  double a = parse_shift();
   while (eval_okay && (*calc_cp == '&')) {
     calc_cp++;
-    float b = parse_shift();
-    a = (float)((long long)a & (long long)b);
+    double b = parse_shift();
+    a = (double)((long long)a & (long long)b);
   }
   return a;
 }
 
-static float parse_bitwise_xor(void) {
-  float a = parse_bitwise_and();
+static double parse_bitwise_xor(void) {
+  double a = parse_bitwise_and();
   while (eval_okay && (*calc_cp == '^')) {
     calc_cp++;
-    float b = parse_bitwise_and();
-    a = (float)((long long)a ^ (long long)b);
+    double b = parse_bitwise_and();
+    a = (double)((long long)a ^ (long long)b);
   }
   return a;
 }
 
-static float parse_bitwise_or(void) {
-  float a = parse_bitwise_xor();
+static double parse_bitwise_or(void) {
+  double a = parse_bitwise_xor();
   while (eval_okay && (*calc_cp == '|')) {
     calc_cp++;
-    float b = parse_bitwise_xor();
-    a = (float)((long long)a | (long long)b);
+    double b = parse_bitwise_xor();
+    a = (double)((long long)a | (long long)b);
   }
   return a;
 }
 
-static float parse_expr(void) { return parse_bitwise_or(); }
+static double parse_expr(void) { return parse_bitwise_or(); }
+
+/* Parse the whole expression. Anything the grammar didn't consume (e.g. a lone
+ * '<' from a half-deleted shift) flags an error instead of silently returning
+ * the partial result. */
+static double calc_run_parser(void) {
+  eval_okay = true;
+  calc_cp = &calc_expr[0];
+  double r = (*calc_cp != '\0') ? parse_expr() : 0;
+  if (*calc_cp != '\0') eval_okay = false;
+  return r;
+}
 
 /* ========================================================================== */
 /* USER INPUT & STATE UPDATES                                                 */
@@ -203,13 +214,18 @@ static void calc_tap_backspace(void) {
       calc_expr[n - 1] = '\0';
       if (deleted == '(') bracket_open = false;
       else if (deleted == ')') bracket_open = true;
+      /* shifts are two chars ('<<' / '>>') -- delete them as one keystroke */
+      else if ((deleted == '<' || deleted == '>') && n >= 2 &&
+               calc_expr[n - 2] == deleted) {
+        calc_expr[n - 2] = '\0';
+      }
     }
   }
 }
 
-static void calc_print_result(float result) {
+static void calc_print_result(double result) {
   if (bin_mode) {
-    long long val = (long long)(result > 0 ? result + 0.5f : result - 0.5f);
+    long long val = (long long)(result > 0 ? result + 0.5 : result - 0.5);
     unsigned long long mask = bin_word_size == 64
                                   ? 0xFFFFFFFFFFFFFFFFULL
                                   : (1ULL << bin_word_size) - 1;
@@ -239,7 +255,7 @@ static void calc_print_result(float result) {
   result = is_negative ? -result : result;
 
   long long whole = (long long)result;
-  int fraction = (int)((result - whole) * 100.0f + 0.5f);
+  int fraction = (int)((result - whole) * 100.0 + 0.5);
   if (fraction >= 100) {
     whole++;
     fraction = 0;
@@ -257,10 +273,7 @@ static void calc_print_result(float result) {
 
 static void calc_tap_eval(void) {
   if (bracket_open) calc_push(')');
-  float result = 0;
-  eval_okay = true;
-  calc_cp = &calc_expr[0];
-  if (*calc_cp != '\0') result = parse_expr();
+  double result = calc_run_parser();
   if (eval_okay) calc_print_result(result);
   else snprintf(calc_expr, sizeof(calc_expr), "Error");
   calc_shown = true;
@@ -275,13 +288,11 @@ static void convert_to_binary(void) {
 
     bool old_mode = bin_mode;
     bin_mode = false;
-    eval_okay = true;
-    calc_cp = &calc_expr[0];
-    float r = parse_expr();
+    double r = calc_run_parser();
     bin_mode = old_mode;
 
     if (eval_okay) {
-        long long val = (long long)(r > 0 ? r + 0.5f : r - 0.5f);
+        long long val = (long long)(r > 0 ? r + 0.5 : r - 0.5);
 
         unsigned long long abs_val = val >= 0 ? val : -val;
         if (abs_val <= 3) bin_word_size = 2;
@@ -306,9 +317,7 @@ static void convert_to_decimal(void) {
 
     bool old_mode = bin_mode;
     bin_mode = true;
-    eval_okay = true;
-    calc_cp = &calc_expr[0];
-    float r = parse_expr();
+    double r = calc_run_parser();
     bin_mode = old_mode;
 
     if (eval_okay) {
@@ -362,6 +371,14 @@ static void calc_update_display(void) {
 /* ========================================================================== */
 static void tap_calc_char(int ch) {
   calc_ensure_binary();
+  calc_push((char)ch);
+  calc_update_display();
+}
+
+/* Shift buttons: the parser reads << / >> as two chars, so one tap pushes both. */
+static void tap_calc_shift(int ch) {
+  calc_ensure_binary();
+  calc_push((char)ch);
   calc_push((char)ch);
   calc_update_display();
 }
@@ -440,9 +457,7 @@ static void tap_calc_ws(int cell) {
   bin_converted = false;
 
   if (calc_expr[0] != '\0') {
-    eval_okay = true;
-    calc_cp = &calc_expr[0];
-    float r = parse_expr();
+    double r = calc_run_parser();
     if (eval_okay) {
       long long val = (long long)(r > 0 ? r + 0.5 : r - 0.5);
       unsigned long long mask = bin_word_size == 64
@@ -543,10 +558,10 @@ static const struct page_cell calc_cells_alt2[] = {
     {1, 2, 1, 1, "*", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '*'}},
     {1, 3, 1, 1, "/", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '/'}},
 
-    {2, 0, 1, 1, "<<", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '<'}},
+    {2, 0, 1, 1, "<<", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_shift, '<'}},
     {2, 1, 1, 1, "0", NULL, COLOR_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '0'}},
     {2, 2, 1, 1, "1", NULL, COLOR_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '1'}},
-    {2, 3, 1, 1, ">>", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '>'}},
+    {2, 3, 1, 1, ">>", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_shift, '>'}},
 
     {3, 0, 1, 1, "&", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '&'}},
     {3, 1, 1, 1, "|", NULL, COLOR_ACCENT, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '|'}},
