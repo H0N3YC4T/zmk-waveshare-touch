@@ -69,7 +69,7 @@ struct view_def
   const struct page_cell *cells_portrait; /* optional explicit portrait layout override */
   const struct page_cell *const *pages; /* array of paginated landscape layouts */
   const struct page_cell *const *pages_portrait; /* array of paginated portrait overrides */
-  uint8_t num_pages;           /* number of pages in the pages array */
+  uint8_t num_pages;           /* TOTAL pages incl. the base cells page; pages[] holds N-1 */
   void (*build)(void);         /* renderer; NULL = nothing to draw (NORMAL) */
   bool idle_timeout;           /* return to NORMAL after TOUCH_TIMEOUT_MS idle */
   bool keeps_mods;             /* armed one-shot mods survive entering this view */

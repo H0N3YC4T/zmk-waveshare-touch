@@ -40,6 +40,8 @@ LOG_MODULE_REGISTER(mk1_touch, LOG_LEVEL_INF);
 #define SCREEN_W 280
 #define SCREEN_H 240
 
+/* rot 0 = the hardware-calibrated baseline; if the portraits come out swapped on
+ * hardware, swap cases 1/3 here AND rot_to_panel[]'s middle entries. */
 static uint8_t tp_rot;
 void prospector_touch_set_orientation(int rot) { tp_rot = (uint8_t)(rot & 3); }
 static inline int32_t panel_to_screen_x(int32_t tx, int32_t ty) {
@@ -68,6 +70,7 @@ static bool pending_hold;  /* the pending tap was a long-press */
 
 static inline int32_t iabs32(int32_t v) { return v < 0 ? -v : v; }
 
+/* Behaviors/HID must run on a workqueue, never in the input callback (driver ctx). */
 static void touch_fire(struct k_work *work) {
     ARG_UNUSED(work);
     prospector_touch_tap(pending_sx, pending_sy, pending_hold);
