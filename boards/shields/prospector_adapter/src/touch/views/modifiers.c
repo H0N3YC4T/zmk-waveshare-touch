@@ -53,5 +53,6 @@ const struct view_def view_modifiers = {
     .cells = mod_cells,
     .cells_portrait = mod_cells_portrait,
     .build = build_modifiers,
+    .keeps_mods = true,
     .idle_timeout = true,
 };

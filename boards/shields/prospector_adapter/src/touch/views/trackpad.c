@@ -66,4 +66,5 @@ const struct view_def view_trackpad = {
     .cells = trackpad_cells,
     .cells_portrait = trackpad_cells_portrait,
     .build = build_trackpad,
+    .keeps_mods = true,
 };

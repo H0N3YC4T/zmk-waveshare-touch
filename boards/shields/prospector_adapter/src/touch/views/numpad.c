@@ -29,4 +29,5 @@ static const struct page_cell numpad_cells[] = {
 
 const struct view_def view_numpad = {
     .cells = numpad_cells,
+    .keeps_mods = true,
 };

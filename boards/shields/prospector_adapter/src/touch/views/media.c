@@ -26,4 +26,5 @@ static const struct page_cell media_cells_portrait[] = {
 const struct view_def view_media = {
     .cells = media_cells,
     .cells_portrait = media_cells_portrait,
+    .keeps_mods = true,
 };

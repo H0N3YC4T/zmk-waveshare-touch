@@ -17,6 +17,8 @@ static struct pending_key key_ring[KEY_RING_SZ];
 static atomic_t key_ring_head = ATOMIC_INIT(0);
 static atomic_t key_ring_tail = ATOMIC_INIT(0);
 
+/* All behavior/HID sends run HERE (system workqueue) -- queue_add with wait=0 is
+ * synchronous on the caller, so the thread hop must come from this k_work. */
 static void key_work_handler(struct k_work *work) {
     ARG_UNUSED(work);
     while (atomic_get(&key_ring_tail) != atomic_get(&key_ring_head)) {

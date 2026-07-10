@@ -46,4 +46,5 @@ const struct view_def view_pad = {
     .cells = pad_cells,
     .cells_portrait = pad_cells_portrait,
     .build = build_pad,
+    .keeps_mods = true,
 };

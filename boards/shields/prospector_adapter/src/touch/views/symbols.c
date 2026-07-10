@@ -70,4 +70,5 @@ const struct view_def view_symbols = {
     .cells = sym_p0,
     .pages = sym_pages,
     .num_pages = 5,
+    .keeps_mods = true,
 };

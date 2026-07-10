@@ -2,8 +2,8 @@
 
 #include "../touch_ui.h"
 
-int grid_rows = 2; /* rows in the current screen's grid (2 / 3 / 4) */
-int grid_cols = 3; /* cols in the current screen's grid (2 / 3 / 4) */
+int grid_rows = 2; /* rows in the current screen's grid */
+int grid_cols = 3; /* cols in the current screen's grid */
 
 static lv_obj_t *make_btn(int row, int col, int w_cells, int h_cells, uint32_t accent, int pct, bool filled)
 {

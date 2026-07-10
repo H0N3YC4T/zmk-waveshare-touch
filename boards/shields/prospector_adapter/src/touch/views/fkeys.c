@@ -32,4 +32,5 @@ const struct view_def view_fkeys = {
     .cells = fkeys_p0,
     .pages = fkeys_pages,
     .num_pages = 2,
+    .keeps_mods = true,
 };
