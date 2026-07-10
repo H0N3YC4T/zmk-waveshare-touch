@@ -62,7 +62,8 @@ enum action_type {
     ACT_CUSTOM,
     ACT_FIRE_MACRO,
     ACT_NEXT_PAGE,
-    ACT_PREV_PAGE
+    ACT_PREV_PAGE,
+    ACT_CUSTOM_VAL
 };
 
 struct view_def; // Forward declaration for page_cell arg
@@ -81,6 +82,10 @@ struct page_cell {
         uint32_t keycode;
         const char *macro;
         void (*func)(int cell);
+        struct {
+            void (*cb)(int val);
+            int val;
+        } custom;
     } arg;
 };
 

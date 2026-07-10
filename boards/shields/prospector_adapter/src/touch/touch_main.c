@@ -79,6 +79,9 @@ void tap_declarative(int cell)
         case ACT_FIRE_MACRO:
           fire_macro(pc->arg.macro);
           break;
+        case ACT_CUSTOM_VAL:
+          if (pc->arg.custom.cb) pc->arg.custom.cb(pc->arg.custom.val);
+          break;
         case ACT_CUSTOM:
           if (pc->arg.func) pc->arg.func(cell);
           break;

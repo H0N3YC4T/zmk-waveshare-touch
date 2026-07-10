@@ -12,14 +12,14 @@ static const struct page_cell fkeys_p0[] = {
     {1, 1, 1, 1, "F4", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F4},
     {1, 2, 1, 1, "F5", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F5},
     {2, 0, 1, 1, "F6", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F6},
-    {2, 1, 1, 1, LV_SYMBOL_DOWN, NULL, COLOR_YELLOW, ACT_NEXT_PAGE},
+    {2, 1, 1, 1, LV_SYMBOL_DOWN, NULL, COLOR_ALERT, ACT_NEXT_PAGE},
     {2, 2, 1, 1, "F7", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F7},
     {0}
 };
 
 static const struct page_cell fkeys_p1[] = {
     {0, 0, 1, 1, "F8", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F8},
-    {0, 1, 1, 1, LV_SYMBOL_UP, NULL, COLOR_YELLOW, ACT_PREV_PAGE},
+    {0, 1, 1, 1, LV_SYMBOL_UP, NULL, COLOR_ALERT, ACT_PREV_PAGE},
     {0, 2, 1, 1, "F9", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F9},
     {1, 0, 1, 1, "F10", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F10},
     {1, 1, 1, 1, "F11", NULL, COLOR_PRIMARY, ACT_SEND_KEY, .arg.keycode = F11},
