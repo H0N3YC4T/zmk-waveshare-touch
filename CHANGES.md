@@ -153,6 +153,11 @@ widget is in which slot.
 
 ### `src/touch/` + `src/status_screen.c` — the entire touch UI (biggest change)
 
+**(2026-07-11: superseded by the declarative rework — the touch UI is now
+`src/touch/tools/` (input/keys/nav/draw/rotation) + `src/touch/views/` (one file per view,
+declared as `page_cell[]` tables) + `touch_main.c` (generic dispatcher); the enum/registry
+described below is gone. The sections below are kept as design history.)**
+
 (2026-07-07: the `layouts/operator/` tree was flattened — touch UI now lives in `src/touch/`
 one feature per file, widgets in `src/widgets/`, entry point at `src/status_screen.c`; the
 `custom_status_screen.c` #include indirection and the single-entry layout glob are gone.)
