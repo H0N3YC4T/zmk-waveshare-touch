@@ -1,4 +1,4 @@
-# zmk-waveshare-touch
+# dongle-mk1
 
 ZMK module for a split-keyboard dongle built from a Seeed XIAO nRF52840 and a Waveshare 1.69"
 touch LCD (280x240 ST7789V, CST816S capacitive touch, glass corners ~R5.15mm). Provides the
@@ -32,7 +32,7 @@ here. Both repos are MIT licensed.
 `config/west.yml` in your zmk-config:
 
 ```yaml
-  - name: zmk-waveshare-touch
+  - name: dongle-mk1
     remote: <your-remote>
     revision: <pin a commit>
 ```

@@ -1,4 +1,4 @@
-name: zmk-waveshare-touch
+name: dongle-mk1
 build:
   cmake: .
   kconfig: Kconfig

@@ -1,4 +1,4 @@
-# Change ledger — zmk-waveshare-touch
+# Change ledger — dongle-mk1
 
 Everything this module adds on top of carrefinho/prospector-zmk-module (from which it was
 extracted 2026-07-06, having lived as a fork branch until then), in one place. This file
