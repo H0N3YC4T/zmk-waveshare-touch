@@ -613,7 +613,7 @@ static void tap_calc_to_bin(int cell);
 static void tap_calc_to_dec(int cell);
 static void tap_calc_to_page2(int cell);
 
-static const struct page_cell calc_cells[] = {
+static const struct page_cell calc_cells_p0[] = {
     {0, 0, 1, 3, "0", NULL, THEME_SECONDARY, ACT_GO_VIEW, .arg.view = &view_home},
     {0, 3, 1, 1, NULL, &icon_backspace, THEME_DENY, ACT_CUSTOM, .arg.func = tap_calc_backspace_cb},
 
@@ -632,13 +632,13 @@ static const struct page_cell calc_cells[] = {
     {3, 2, 1, 1, "3", NULL, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '3'}},
     {3, 3, 1, 1, "*", NULL, THEME_SECONDARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '*'}},
 
-    {4, 0, 1, 1, NULL, &icon_right, THEME_FOCUS, ACT_CUSTOM, .arg.func = tap_calc_to_page2},
+    {4, 0, 1, 1, NULL, &icon_right, THEME_INCREMENT, ACT_CUSTOM, .arg.func = tap_calc_to_page2},
     {4, 1, 1, 1, "0", NULL, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '0'}},
     {4, 2, 1, 1, "=", NULL, THEME_ACCEPT, ACT_CUSTOM, .arg.func = tap_calc_equals},
     {4, 3, 1, 1, "/", NULL, THEME_SECONDARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '/'}},
     {0}};
 
-static const struct page_cell calc_cells_alt[] = {
+static const struct page_cell calc_cells_p1[] = {
     {0, 0, 1, 3, "0", NULL, THEME_SECONDARY, ACT_GO_VIEW, .arg.view = &view_home},
     {0, 3, 1, 1, NULL, &icon_backspace, THEME_DENY, ACT_CUSTOM, .arg.func = tap_calc_backspace_cb},
 
@@ -657,14 +657,14 @@ static const struct page_cell calc_cells_alt[] = {
     {3, 2, 1, 1, "3", NULL, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '3'}},
     {3, 3, 1, 1, "!", NULL, THEME_SECONDARY, ACT_CUSTOM, .arg.func = tap_calc_factorial},
 
-    {4, 0, 1, 1, NULL, &icon_left, THEME_FOCUS, ACT_CUSTOM, .arg.func = tap_calc_to_dec},
+    {4, 0, 1, 1, NULL, &icon_left, THEME_DECREMENT, ACT_CUSTOM, .arg.func = tap_calc_to_dec},
     {4, 1, 1, 1, "0", NULL, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '0'}},
-    {4, 2, 1, 1, NULL, &icon_right, THEME_FOCUS, ACT_CUSTOM, .arg.func = tap_calc_to_bin},
+    {4, 2, 1, 1, NULL, &icon_right, THEME_INCREMENT, ACT_CUSTOM, .arg.func = tap_calc_to_bin},
     {4, 3, 1, 1, ".", NULL, THEME_SECONDARY, ACT_CUSTOM, .arg.func = tap_calc_dot},
     {0}};
 
-static const struct page_cell calc_cells_alt2[] = {
-    {0, 0, 1, 4, "0", NULL, THEME_SECONDARY, ACT_GO_VIEW, .arg.view = &view_home},
+static const struct page_cell calc_cells_p2[] = {
+    {0, 0, 1, 4, "0", NULL, THEME_PRIMARY, ACT_GO_VIEW, .arg.view = &view_home},
 
     {1, 0, 1, 1, "+", NULL, THEME_SECONDARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '+'}},
     {1, 1, 1, 1, "-", NULL, THEME_SECONDARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '-'}},
@@ -681,16 +681,16 @@ static const struct page_cell calc_cells_alt2[] = {
     {3, 2, 1, 1, "~", NULL, THEME_SECONDARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '~'}},
     {3, 3, 1, 1, "^", NULL, THEME_SECONDARY, ACT_CUSTOM_VAL, .arg.custom = {tap_calc_char, '^'}},
 
-    {4, 0, 1, 1, NULL, &icon_left, THEME_FOCUS, ACT_CUSTOM, .arg.func = tap_calc_to_dec},
+    {4, 0, 1, 1, NULL, &icon_left, THEME_DECREMENT, ACT_CUSTOM, .arg.func = tap_calc_to_dec},
     {4, 1, 1, 1, "WS", NULL, THEME_FOCUS, ACT_CUSTOM, .arg.func = tap_calc_ws},
-    {4, 2, 1, 1, NULL, &icon_backspace, THEME_DENY, ACT_CUSTOM, .arg.func = tap_calc_backspace_cb},
-    {4, 3, 1, 1, "=", NULL, THEME_ACCEPT, ACT_CUSTOM, .arg.func = tap_calc_equals},
+    {4, 2, 1, 1, "=", NULL, THEME_ACCEPT, ACT_CUSTOM, .arg.func = tap_calc_equals},
+    {4, 3, 1, 1, NULL, &icon_backspace, THEME_DENY, ACT_CUSTOM, .arg.func = tap_calc_backspace_cb},
     {0}};
 
-static const struct page_cell *const calc_pages[] = {calc_cells_alt, calc_cells_alt2};
+static const struct page_cell *const calc_pages[] = {calc_cells_p1, calc_cells_p2};
 
 const struct view_def view_calc = {
-    .cells = calc_cells,
+    .cells = calc_cells_p0,
     .pages = calc_pages,
     .num_pages = 3,
     .build = calc_update_display,

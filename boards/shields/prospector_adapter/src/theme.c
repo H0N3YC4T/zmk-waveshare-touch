@@ -8,8 +8,7 @@
 
 __weak void theme_changed(void) {}
 
-/* Classic palette; the default build renders pixel-identical to the
- * pre-theme hardcoded colours. */
+/* Default palette */
 static const uint32_t theme_classic[THEME_ROLE_COUNT] = {
     [THEME_PRIMARY]          = 0xc8a2c8,
     [THEME_PRIMARY_DIM]      = 0x242424,
@@ -20,6 +19,8 @@ static const uint32_t theme_classic[THEME_ROLE_COUNT] = {
     [THEME_FOCUS_BRIGHT]     = 0xffbf00,
     [THEME_ACCEPT]           = 0xa8e6b8,
     [THEME_DENY]             = 0xc2526a,
+    [THEME_INCREMENT]        = 0xa8e6b8,
+    [THEME_DECREMENT]        = 0xf5e08c,
     [THEME_BACKGROUND]       = 0x000000,
     [THEME_SURFACE]          = 0x101216,
     [THEME_SURFACE_LOW]      = 0x0b0d10,
@@ -39,6 +40,8 @@ static const enum theme_category role_cat[THEME_ROLE_COUNT] = {
     [THEME_FOCUS_BRIGHT]     = THEME_CAT_FOCUS,
     [THEME_ACCEPT]           = THEME_CAT_ACCEPT,
     [THEME_DENY]             = THEME_CAT_DENY,
+    [THEME_INCREMENT]        = THEME_CAT_INCREMENT,
+    [THEME_DECREMENT]        = THEME_CAT_DECREMENT,
     [THEME_BACKGROUND]       = THEME_CAT_BACKGROUND,
     [THEME_SURFACE]          = THEME_CAT_BACKGROUND,
     [THEME_SURFACE_LOW]      = THEME_CAT_BACKGROUND,
@@ -54,6 +57,8 @@ static const enum theme_role cat_base[THEME_CAT_COUNT] = {
     [THEME_CAT_FOCUS]      = THEME_FOCUS,
     [THEME_CAT_ACCEPT]     = THEME_ACCEPT,
     [THEME_CAT_DENY]       = THEME_DENY,
+    [THEME_CAT_INCREMENT]  = THEME_INCREMENT,
+    [THEME_CAT_DECREMENT]  = THEME_DECREMENT,
     [THEME_CAT_BACKGROUND] = THEME_BACKGROUND,
 };
 
@@ -67,6 +72,8 @@ static uint32_t palette[THEME_ROLE_COUNT] = {
     [THEME_FOCUS_BRIGHT]     = 0xffbf00,
     [THEME_ACCEPT]           = 0xa8e6b8,
     [THEME_DENY]             = 0xc2526a,
+    [THEME_INCREMENT]        = 0xa8e6b8,
+    [THEME_DECREMENT]        = 0xf5e08c,
     [THEME_BACKGROUND]       = 0x000000,
     [THEME_SURFACE]          = 0x101216,
     [THEME_SURFACE_LOW]      = 0x0b0d10,

@@ -92,45 +92,61 @@ extern uint8_t ui_rot; /* 0..3 = 0/90/180/270 deg CW (touch_rotation.c) */
 static inline lv_coord_t scr_w(void) { return (ui_rot & 1) ? SCR_H : SCR_W; }
 static inline lv_coord_t scr_h(void) { return (ui_rot & 1) ? SCR_W : SCR_H; }
 
-extern const lv_image_dsc_t icon_trackpad __weak;
-extern const lv_image_dsc_t icon_modkeys __weak;
+// Home Icons
+extern const lv_image_dsc_t icon_fkeys __weak;
 extern const lv_image_dsc_t icon_numpad __weak;
 extern const lv_image_dsc_t icon_symbols __weak;
-extern const lv_image_dsc_t icon_fkeys __weak;
-extern const lv_image_dsc_t icon_alt __weak;
+extern const lv_image_dsc_t icon_settings __weak;
+extern const lv_image_dsc_t icon_trackpad __weak;
+extern const lv_image_dsc_t icon_modkeys __weak;
+extern const lv_image_dsc_t icon_keyboard __weak;
 extern const lv_image_dsc_t icon_audio __weak;
-extern const lv_image_dsc_t icon_backspace __weak;
-extern const lv_image_dsc_t icon_bright __weak;
+
+// Shortcut Icons
+extern const lv_image_dsc_t icon_terminal __weak;
+extern const lv_image_dsc_t icon_list __weak;
 extern const lv_image_dsc_t icon_browser __weak;
-extern const lv_image_dsc_t icon_close __weak;
+extern const lv_image_dsc_t icon_desktop __weak;
+extern const lv_image_dsc_t icon_notes __weak;
+
+// Clipboard Icons
+extern const lv_image_dsc_t icon_paste __weak;
 extern const lv_image_dsc_t icon_copy __weak;
 extern const lv_image_dsc_t icon_cut __weak;
-extern const lv_image_dsc_t icon_desktop __weak;
-extern const lv_image_dsc_t icon_down __weak;
-extern const lv_image_dsc_t icon_gui __weak;
-extern const lv_image_dsc_t icon_keyboard __weak;
-extern const lv_image_dsc_t icon_left __weak;
-extern const lv_image_dsc_t icon_list __weak;
-extern const lv_image_dsc_t icon_minus __weak;
-extern const lv_image_dsc_t icon_newline __weak;
-extern const lv_image_dsc_t icon_newline_32 __weak;
-extern const lv_image_dsc_t icon_next __weak;
-extern const lv_image_dsc_t icon_notes __weak;
-extern const lv_image_dsc_t icon_paste __weak;
-extern const lv_image_dsc_t icon_play __weak;
-extern const lv_image_dsc_t icon_plus __weak;
-extern const lv_image_dsc_t icon_prev __weak;
-extern const lv_image_dsc_t icon_right __weak;
-extern const lv_image_dsc_t icon_rotate __weak;
-extern const lv_image_dsc_t icon_sens __weak;
-extern const lv_image_dsc_t icon_settings __weak;
+
+// Mod Keys
+extern const lv_image_dsc_t icon_alt __weak;
 extern const lv_image_dsc_t icon_shift __weak;
-extern const lv_image_dsc_t icon_terminal __weak;
+extern const lv_image_dsc_t icon_gui __weak;
+
+// Settings Icons
+extern const lv_image_dsc_t icon_sens __weak;
+extern const lv_image_dsc_t icon_bright __weak;
+extern const lv_image_dsc_t icon_rotate __weak;
 extern const lv_image_dsc_t icon_theme __weak;
-extern const lv_image_dsc_t icon_up __weak;
-extern const lv_image_dsc_t icon_up_32 __weak;
+
+// Media Icons
+extern const lv_image_dsc_t icon_play __weak;
+extern const lv_image_dsc_t icon_next __weak;
+extern const lv_image_dsc_t icon_prev __weak;
 extern const lv_image_dsc_t icon_voldown __weak;
 extern const lv_image_dsc_t icon_volup __weak;
+
+// General Icons
+extern const lv_image_dsc_t icon_plus __weak;
+extern const lv_image_dsc_t icon_minus __weak;
+extern const lv_image_dsc_t icon_close __weak;
+extern const lv_image_dsc_t icon_newline __weak;
+extern const lv_image_dsc_t icon_newline_32 __weak;
+extern const lv_image_dsc_t icon_backspace __weak;
+
+// Arrow Icons
+extern const lv_image_dsc_t icon_up __weak;
+extern const lv_image_dsc_t icon_up_32 __weak;
+extern const lv_image_dsc_t icon_down __weak;
+extern const lv_image_dsc_t icon_left __weak;
+extern const lv_image_dsc_t icon_left_32 __weak;
+extern const lv_image_dsc_t icon_right __weak;
 
 /* ------------------------------- functions -------------------------------- */
 /* touch_draw.c */

@@ -110,7 +110,7 @@ static void build_settings(void)
   if (cur_view_btns[SET_BTN_BRIGHT_READOUT])
   {
     static char bright_text[8];
-    snprintf(bright_text, sizeof(bright_text), "%d%%", br);
+    snprintf(bright_text, sizeof(bright_text), "%d", br);
     readout_set(SET_BTN_BRIGHT_READOUT, &icon_bright, bright_text);
   }
 }
@@ -133,12 +133,12 @@ static const struct page_cell settings_cells[] = {
     {0, 0, 1, 1, " ", NULL, THEME_PRIMARY, ACT_NONE},
     {0, 1, 1, 1, NULL, &icon_up, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_home},
     {0, 2, 1, 1, " ", NULL, THEME_PRIMARY, ACT_NONE},
-    {1, 0, 1, 1, NULL, &icon_plus, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, +1}},
+    {1, 0, 1, 1, NULL, &icon_plus, THEME_INCREMENT, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, +1}},
     {1, 1, 1, 1, NULL, &icon_rotate, THEME_SECONDARY, ACT_CUSTOM, .arg.func = tap_rotate},
-    {1, 2, 1, 1, NULL, &icon_plus, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, +BRIGHTNESS_STEP}},
-    {2, 0, 1, 1, NULL, &icon_minus, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, -1}},
+    {1, 2, 1, 1, NULL, &icon_plus, THEME_INCREMENT, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, +BRIGHTNESS_STEP}},
+    {2, 0, 1, 1, NULL, &icon_minus, THEME_DECREMENT, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, -1}},
     {2, 1, 1, 1, NULL, &icon_theme, THEME_PRIMARY, ACT_GO_VIEW, .arg.view = &view_theme},
-    {2, 2, 1, 1, NULL, &icon_minus, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, -BRIGHTNESS_STEP}},
+    {2, 2, 1, 1, NULL, &icon_minus, THEME_DECREMENT, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, -BRIGHTNESS_STEP}},
     {0}};
 
 const struct view_def view_settings = {

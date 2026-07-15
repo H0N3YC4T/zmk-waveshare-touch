@@ -10,13 +10,13 @@ static const struct page_cell fkeys_p0[] = {
     {1, 1, 1, 1, "F4", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F4},
     {1, 2, 1, 1, "F5", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F5},
     {2, 0, 1, 1, "F6", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F6},
-    {2, 1, 1, 1, NULL, &icon_down, THEME_FOCUS, ACT_NEXT_PAGE},
+    {2, 1, 1, 1, NULL, &icon_down, THEME_INCREMENT, ACT_NEXT_PAGE},
     {2, 2, 1, 1, "F7", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F7},
     {0}};
 
 static const struct page_cell fkeys_p1[] = {
     {0, 0, 1, 1, "F8", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F8},
-    {0, 1, 1, 1, NULL, &icon_up, THEME_FOCUS, ACT_PREV_PAGE},
+    {0, 1, 1, 1, NULL, &icon_up, THEME_INCREMENT, ACT_PREV_PAGE},
     {0, 2, 1, 1, "F9", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F9},
     {1, 0, 1, 1, "F10", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F10},
     {1, 1, 1, 1, "F11", NULL, THEME_PRIMARY, ACT_SEND_KEY, .arg.keycode = F11},

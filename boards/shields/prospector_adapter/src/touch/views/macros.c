@@ -25,7 +25,7 @@ static const struct page_cell pad_cells[] = {
     {0, 1, 1, 1, NULL, &icon_up, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_home},
     {0, 2, 1, 1, NULL, &icon_list, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 1}},
     {1, 0, 1, 1, NULL, &icon_browser, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 2}},
-    {1, 1, 1, 1, NULL, &icon_desktop, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 3}},
+    {1, 1, 1, 1, NULL, &icon_desktop, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 3}},
     {1, 2, 1, 1, NULL, &icon_notes, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 4}},
     {0}};
 
@@ -33,7 +33,7 @@ static const struct page_cell pad_cells_portrait[] = {
     {0, 0, 1, 1, NULL, &icon_terminal, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 0}},
     {0, 1, 1, 1, NULL, &icon_list, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 1}},
     {1, 0, 1, 1, NULL, &icon_up, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_home},
-    {1, 1, 1, 1, NULL, &icon_desktop, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 3}},
+    {1, 1, 1, 1, NULL, &icon_desktop, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 3}},
     {2, 0, 1, 1, NULL, &icon_browser, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 2}},
     {2, 1, 1, 1, NULL, &icon_notes, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {fire_pad, 4}},
     {0}};
@@ -42,5 +42,4 @@ const struct view_def view_pad = {
     .cells = pad_cells,
     .cells_portrait = pad_cells_portrait,
     .build = build_pad,
-    .keeps_mods = true,
 };
