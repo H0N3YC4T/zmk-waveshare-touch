@@ -6,9 +6,9 @@
 
 static void build_settings(void);
 
-static void tap_sens(int delta) { prospector_touchpad_sens_step(delta); build_settings(); }
-static void tap_bright(int delta) { prospector_brightness_step(delta); build_settings(); }
-static void tap_rotate(int cell) { ARG_UNUSED(cell); ui_rot = (ui_rot + 1) & 3; settings_apply_rotation(); }
+static void tap_sens(int delta) { prospector_touchpad_sens_step(delta); touch_prefs_save(); build_settings(); }
+static void tap_bright(int delta) { prospector_brightness_step(delta); touch_prefs_save(); build_settings(); }
+static void tap_rotate(int cell) { ARG_UNUSED(cell); ui_rot = (ui_rot + 1) & 3; settings_apply_rotation(); touch_prefs_save(); }
 
 #define SET_BTN_SENS_READOUT 0
 #define SET_BTN_BRIGHT_READOUT 2

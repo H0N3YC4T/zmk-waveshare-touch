@@ -72,6 +72,7 @@ lv_obj_t *zmk_display_status_screen() {
     status_screen_reflow();
 
     touch_ui_attach(screen);
+    touch_prefs_apply(); /* restore saved brightness/sensitivity/rotation */
 
     return screen;
 }

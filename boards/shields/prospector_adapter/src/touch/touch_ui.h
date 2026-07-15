@@ -158,6 +158,10 @@ void fire_pad(int idx);    /* invoke PAD binding idx (M1 = 0) */
 /* touch_rotation.c */
 void settings_apply_rotation(void);
 
+/* touch_prefs.c: brightness/sensitivity/rotation persistence */
+void touch_prefs_apply(void);
+void touch_prefs_save(void);
+
 void status_screen_reflow(void);
 
 extern void prospector_brightness_step(int delta);
