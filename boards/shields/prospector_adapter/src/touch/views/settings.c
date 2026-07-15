@@ -88,7 +88,7 @@ static void build_settings(void)
       lv_obj_set_style_border_color(cur_view_btns[SET_BTN_SENS_MINUS], lv_color_hex(theme_color(sn <= 0 ? THEME_MUTED : THEME_FOCUS)), LV_PART_MAIN);
     if (cur_view_btns[SET_BTN_SENS_READOUT])
     {
-      static char sens_text[8];
+      static char sens_text[12];
       snprintf(sens_text, sizeof(sens_text), "%d", sn);
       readout_set(SET_BTN_SENS_READOUT, &icon_sens, sens_text);
     }
@@ -109,7 +109,7 @@ static void build_settings(void)
     lv_obj_set_style_border_color(cur_view_btns[SET_BTN_BRIGHT_MINUS], lv_color_hex(theme_color(br <= SETTINGS_BRIGHT_MIN ? THEME_MUTED : THEME_FOCUS)), LV_PART_MAIN);
   if (cur_view_btns[SET_BTN_BRIGHT_READOUT])
   {
-    static char bright_text[8];
+    static char bright_text[12];
     snprintf(bright_text, sizeof(bright_text), "%d", br);
     readout_set(SET_BTN_BRIGHT_READOUT, &icon_bright, bright_text);
   }

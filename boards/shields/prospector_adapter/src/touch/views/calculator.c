@@ -5,7 +5,7 @@
 /* ========================================================================== */
 /* STATE                                                                      */
 /* ========================================================================== */
-static char calc_expr[64];
+static char calc_expr[72]; /* fits a 64-digit binary result + NUL */
 static const char *calc_cursor;
 static bool result_shown;
 static bool eval_okay;
