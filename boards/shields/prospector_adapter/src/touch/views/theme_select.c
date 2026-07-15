@@ -29,6 +29,14 @@ static void open_swatch(int cat)
   show_view(&view_swatch);
 }
 
+/* one-tap return to the classic palette (same as holding the theme button) */
+static void tap_classic(int cell)
+{
+  ARG_UNUSED(cell);
+  theme_reset_classic();
+  build_view(cur_view);
+}
+
 static const struct page_cell theme_p0[] = {
     {0, 0, 1, 1, NULL, &icon_up, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_settings},
     {0, 1, 1, 2, "PRIMARY", NULL, THEME_PRIMARY, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_PRIMARY}},
@@ -39,19 +47,27 @@ static const struct page_cell theme_p0[] = {
 
 static const struct page_cell theme_p1[] = {
     {0, 0, 1, 1, NULL, &icon_up, THEME_FOCUS, ACT_PREV_PAGE},
+    {0, 1, 1, 2, "INCREMENT", NULL, THEME_INCREMENT, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_INCREMENT}},
+    {1, 1, 1, 2, "DECREMENT", NULL, THEME_DECREMENT, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_DECREMENT}},
+    {2, 0, 1, 1, NULL, &icon_down, THEME_FOCUS, ACT_NEXT_PAGE},
     /* background's own base can be invisible on itself -- outline muted */
-    {0, 1, 1, 2, "BACKGROUND", NULL, THEME_MUTED, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_BACKGROUND}},
-    {1, 1, 1, 2, "INCREMENT", NULL, THEME_INCREMENT, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_INCREMENT}},
-    {2, 0, 1, 1, NULL, &icon_down, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_settings},
-    {2, 1, 1, 2, "DECREMENT", NULL, THEME_DECREMENT, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_DECREMENT}},
+    {2, 1, 1, 2, "BACKGROUND", NULL, THEME_MUTED, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_BACKGROUND}},
     {0}};
 
-static const struct page_cell *const theme_pages[] = {theme_p1};
+static const struct page_cell theme_p2[] = {
+    {0, 0, 1, 1, NULL, &icon_up, THEME_FOCUS, ACT_PREV_PAGE},
+    {0, 1, 1, 2, "ACCEPT", NULL, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_ACCEPT}},
+    {1, 1, 1, 2, "DENY", NULL, THEME_DENY, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_DENY}},
+    {2, 0, 1, 1, NULL, &icon_down, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_settings},
+    {2, 1, 1, 2, "CLASSIC", NULL, THEME_MUTED, ACT_CUSTOM, .arg.func = tap_classic},
+    {0}};
+
+static const struct page_cell *const theme_pages[] = {theme_p1, theme_p2};
 
 const struct view_def view_theme = {
     .cells = theme_p0,
     .pages = theme_pages,
-    .num_pages = 2,
+    .num_pages = 3,
     .keeps_mods = true,
     .idle_timeout = true,
 };
