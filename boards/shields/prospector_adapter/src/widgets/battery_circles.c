@@ -393,21 +393,18 @@ static void update_peripheral_display(uint8_t source)
   }
 }
 
-/* portrait: the two arcs stack vertically (58x124); landscape: side by side */
-void zmk_widget_battery_circles_set_stacked(bool stacked)
+/* place the two arcs anywhere inside a w x h widget box */
+void zmk_widget_battery_circles_place(int w, int h, int x0, int y0, int x1, int y1)
 {
   if (PERIPHERAL_COUNT != 2 || peripheral_arcs[0] == NULL)
   {
     return;
   }
-  lv_obj_t *obj = lv_obj_get_parent(peripheral_arcs[0]);
-  lv_obj_set_size(obj, stacked ? 58 : 132, stacked ? 124 : 62);
+  lv_obj_set_size(lv_obj_get_parent(peripheral_arcs[0]), w, h);
+  lv_obj_set_pos(peripheral_arcs[0], x0, y0);
+  lv_obj_set_pos(peripheral_arcs[1], x1, y1);
   for (int i = 0; i < 2; i++)
   {
-    if (peripheral_arcs[i])
-    {
-      lv_obj_set_pos(peripheral_arcs[i], stacked ? 0 : i * 66, stacked ? i * 66 : 2);
-    }
     if (peripheral_battery_labels[i] && peripheral_label_boxes[i])
     {
       /* align_to is one-shot -- re-anchor after the arc moves */

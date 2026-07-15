@@ -157,23 +157,24 @@ void zmk_widget_output_retheme(void) {
     }
 }
 
-/* portrait: full-width usb over ble over the slot row (146 wide);
- * landscape: the original 116x62 two-row layout */
+/* portrait: centred usb/ble stack (84w) between the battery arcs, full-width
+ * 44px-tall slot row beneath; landscape: the original 116x62 two-row layout */
 void zmk_widget_output_set_stacked(bool stacked) {
     struct zmk_widget_output *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         int slot_spacing = 2;
-        int width = stacked ? 146 : 116;
+        int width = stacked ? 220 : 116;
         int slot_width =
             (width - (ZMK_BLE_PROFILE_COUNT - 1) * slot_spacing) / ZMK_BLE_PROFILE_COUNT;
-        lv_obj_set_size(widget->obj, width, stacked ? 95 : 62);
-        lv_obj_set_size(widget->usb_btn, stacked ? width : 56, 29);
-        lv_obj_set_size(widget->ble_btn, stacked ? width : 56, 29);
-        lv_obj_set_pos(widget->usb_btn, 0, 0);
-        lv_obj_set_pos(widget->ble_btn, stacked ? 0 : 58, stacked ? 33 : 0);
+        int stack_x = (width - 84) / 2;
+        lv_obj_set_size(widget->obj, width, stacked ? 114 : 62);
+        lv_obj_set_size(widget->usb_btn, stacked ? 84 : 56, 29);
+        lv_obj_set_size(widget->ble_btn, stacked ? 84 : 56, 29);
+        lv_obj_set_pos(widget->usb_btn, stacked ? stack_x : 0, 0);
+        lv_obj_set_pos(widget->ble_btn, stacked ? stack_x : 58, stacked ? 33 : 0);
         for (int i = 0; i < ZMK_BLE_PROFILE_COUNT; i++) {
-            lv_obj_set_size(widget->slots[i], slot_width, 29);
-            lv_obj_set_pos(widget->slots[i], i * (slot_width + slot_spacing), stacked ? 66 : 33);
+            lv_obj_set_size(widget->slots[i], slot_width, stacked ? 44 : 29);
+            lv_obj_set_pos(widget->slots[i], i * (slot_width + slot_spacing), stacked ? 70 : 33);
         }
     }
 }
