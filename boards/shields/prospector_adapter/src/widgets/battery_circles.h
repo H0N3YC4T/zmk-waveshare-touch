@@ -3,10 +3,13 @@
 #include <lvgl.h>
 #include <zephyr/kernel.h>
 
-struct zmk_widget_battery_circles {
-    sys_snode_t node;
-    lv_obj_t *obj;
-    bool initialized;
+extern const lv_image_dsc_t icon_lightning_24;
+
+struct zmk_widget_battery_circles
+{
+  sys_snode_t node;
+  lv_obj_t *obj;
+  bool initialized;
 };
 
 int zmk_widget_battery_circles_init(struct zmk_widget_battery_circles *widget, lv_obj_t *parent);

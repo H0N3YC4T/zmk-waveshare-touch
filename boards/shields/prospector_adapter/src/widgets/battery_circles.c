@@ -44,6 +44,8 @@ static lv_style_t style_label_disconnected;
 static lv_style_t style_label_connected;
 static lv_style_t style_battery_label_disconnected;
 static lv_style_t style_battery_label_connected;
+static lv_style_t style_charge_icon_disconnected;
+static lv_style_t style_charge_icon_connected;
 static bool styles_initialized = false;
 
 static lv_obj_t *peripheral_arcs[PERIPHERAL_COUNT];
@@ -51,6 +53,7 @@ static lv_obj_t *peripheral_bars[PERIPHERAL_COUNT];
 static lv_obj_t *peripheral_label_boxes[PERIPHERAL_COUNT];
 static lv_obj_t *peripheral_labels[PERIPHERAL_COUNT];
 static lv_obj_t *peripheral_battery_labels[PERIPHERAL_COUNT];
+static lv_obj_t *peripheral_charge_icons[PERIPHERAL_COUNT];
 
 static void init_styles(void)
 {
@@ -107,15 +110,23 @@ static void init_styles(void)
   lv_style_init(&style_battery_label_connected);
   lv_style_set_text_color(&style_battery_label_connected, lv_color_hex(COLOR_BATTERY_HIGH));
 
+  lv_style_init(&style_charge_icon_connected);
+  lv_obj_set_style_image_recolor(&style_charge_icon_connected, lv_color_hex(theme_color(THEME_FOCUS), LV_PART_MAIN));
+
+  lv_style_init(&style_charge_icon_disconnected);
+  lv_obj_set_style_image_recolor(&style_charge_icon_disconnected, lv_color_hex(theme_color(THEME_SURFACE), LV_PART_MAIN));
+
   styles_initialized = true;
 }
 
-void zmk_widget_battery_circles_retheme(void) {
-    if (!styles_initialized) {
-        return;
-    }
-    lv_style_set_text_color(&style_label_connected, lv_color_hex(theme_color(THEME_BACKGROUND)));
-    lv_obj_report_style_change(&style_label_connected);
+void zmk_widget_battery_circles_retheme(void)
+{
+  if (!styles_initialized)
+  {
+    return;
+  }
+  lv_style_set_text_color(&style_label_connected, lv_color_hex(theme_color(THEME_BACKGROUND)));
+  lv_obj_report_style_change(&style_label_connected);
 }
 
 static float cubic_bezier_y(float t, float y1, float y2)
@@ -195,7 +206,6 @@ static void animate_arc_value(lv_obj_t *arc, int32_t target_value)
   {
     return;
   }
-
   lv_anim_t anim;
   lv_anim_init(&anim);
   lv_anim_set_var(&anim, arc);
@@ -204,6 +214,24 @@ static void animate_arc_value(lv_obj_t *arc, int32_t target_value)
   lv_anim_set_exec_cb(&anim, arc_value_anim_cb);
   lv_anim_set_path_cb(&anim, lv_anim_path_bezier_battery);
   lv_anim_start(&anim);
+}
+
+void zmk_widget_charge_icon_recolor(lv_obj_t *icon, bool charging)
+{
+  if (icon == NULL)
+  {
+    return;
+  }
+  lv_obj_remove_style(icon, &style_charge_icon_connected, LV_PART_MAIN);
+  lv_obj_remove_style(icon, &style_charge_icon_disconnected, LV_PART_MAIN);
+  if (charging)
+  {
+    lv_obj_add_style(icon, &style_charge_icon_connected, LV_PART_MAIN);
+  }
+  else
+  {
+    lv_obj_add_style(icon, &style_charge_icon_disconnected, LV_PART_MAIN);
+  }
 }
 
 struct battery_update_state
@@ -228,27 +256,34 @@ static void update_peripheral_display(uint8_t source)
 
   bool connected = peripheral_connected[source];
   uint8_t level = peripheral_battery[source];
+  bool charging = peripheral_charging[source];
+
   bool low_battery = connected && level > 0 && level < LOW_BATTERY_THRESHOLD;
-  bool mid_battery = connected && level >= LOW_BATTERY_THRESHOLD &&
-                     level <= MID_BATTERY_THRESHOLD;
+  bool mid_battery = connected && level >= LOW_BATTERY_THRESHOLD && level <= MID_BATTERY_THRESHOLD;
 
   lv_obj_t *arc = peripheral_arcs[source];
   lv_obj_t *bar = peripheral_bars[source];
   lv_obj_t *label_box = peripheral_label_boxes[source];
   lv_obj_t *label = peripheral_labels[source];
   lv_obj_t *battery_label = peripheral_battery_labels[source];
+  lv_obj_t *charge_icon = peripheral_charge_icons[source];
 
   lv_style_t *ring_style = !connected ? &style_arc_ring_disconnected : low_battery ? &style_arc_ring_low
                                                                    : mid_battery   ? &style_arc_ring_mid
                                                                                    : &style_arc_ring_connected;
+
   lv_style_t *ind_style = !connected ? &style_arc_ind_disconnected : low_battery ? &style_arc_ind_low
                                                                  : mid_battery   ? &style_arc_ind_mid
                                                                                  : &style_arc_ind_connected;
+
   lv_style_t *box_style = !connected ? &style_label_box_disconnected : low_battery ? &style_label_box_low
                                                                    : mid_battery   ? &style_label_box_mid
                                                                                    : &style_label_box_connected;
+
   lv_style_t *label_style = connected ? &style_label_connected : &style_label_disconnected;
   lv_style_t *battery_style = connected ? &style_battery_label_connected : &style_battery_label_disconnected;
+
+  lv_style_t *charge_style = charging ? &style_charge_icon_connected : &style_charge_icon_disconnected;
 
   if (arc)
   {
@@ -312,11 +347,10 @@ static void update_peripheral_display(uint8_t source)
     }
     else if (PERIPHERAL_COUNT == 2)
     {
-      char text[8];
+      char text[4];
       if (connected && level > 0)
       {
-        snprintf(text, sizeof(text), "%s%d",
-                 peripheral_charging[source] ? LV_SYMBOL_CHARGE : "", level);
+        snprintf(text, sizeof(text), "%d", level);
       }
       else
       {
@@ -332,17 +366,16 @@ static void update_peripheral_display(uint8_t source)
     lv_obj_remove_style(battery_label, &style_battery_label_connected, LV_PART_MAIN);
     lv_obj_add_style(battery_label, battery_style, LV_PART_MAIN);
 
-    char text[10];
+    char text[5];
     if (connected && level > 0)
     {
-      const char *bolt = peripheral_charging[source] ? LV_SYMBOL_CHARGE : "";
       if (PERIPHERAL_COUNT == 1)
       {
-        snprintf(text, sizeof(text), "%s%d%%", bolt, level);
+        snprintf(text, sizeof(text), "%d%%", level);
       }
       else
       {
-        snprintf(text, sizeof(text), "%s%d", bolt, level);
+        snprintf(text, sizeof(text), "%d", level);
       }
     }
     else
@@ -362,6 +395,13 @@ static void update_peripheral_display(uint8_t source)
         lv_obj_align_to(battery_label, label_box, LV_ALIGN_OUT_BOTTOM_MID, 0, 3);
       }
     }
+  }
+
+  if (charge_icon)
+  {
+    lv_obj_remove_style(charge_icon, &style_charge_icon_connected, LV_PART_MAIN);
+    lv_obj_remove_style(charge_icon, &style_charge_icon_disconnected, LV_PART_MAIN);
+    lv_obj_add_style(charge_icon, charge_style, LV_PART_MAIN);
   }
 }
 
@@ -412,7 +452,7 @@ static struct battery_update_state battery_circles_get_battery_state(const zmk_e
       as_zmk_peripheral_battery_state_changed(eh);
   if (bat_ev == NULL)
   {
-    return (struct battery_update_state){.source = 0, .level = 0};
+    return (struct battery_update_state){.source = 0, .level = 0, .charging = false};
   }
 
   return (struct battery_update_state){
@@ -492,6 +532,14 @@ int zmk_widget_battery_circles_init(struct zmk_widget_battery_circles *widget, l
     lv_obj_remove_style(arc, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);
 
+    lv_obj_t *charge_icon = lv_image_create(widget->obj);
+    peripheral_charge_icons[0] = charge_icon;
+    lv_image_set_src(charge_icon, &icon_lightning_24);
+    lv_obj_center(charge_icon, LV_ALIGN_MID, -6, arc_left);
+    lv_image_add_style(charge_icon, &style_charge_icon_disconnected, LV_PART_MAIN);
+    lv_image_set_style_image_recolor_opa(charge_icon, LV_OPA_COVER, LV_PART_MAIN);
+    lv_image_clear_flag(charge_icon, LV_OBJ_FLAG_CLICKABLE);
+
     lv_obj_t *label_box = lv_obj_create(widget->obj);
     peripheral_label_boxes[0] = label_box;
     lv_obj_set_size(label_box, arc_left - 6, 25);
@@ -540,6 +588,16 @@ int zmk_widget_battery_circles_init(struct zmk_widget_battery_circles *widget, l
       lv_obj_add_style(arc, &style_arc_ind_disconnected, LV_PART_INDICATOR);
       lv_obj_remove_style(arc, NULL, LV_PART_KNOB);
       lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);
+
+      lv_obj_t *charge_icon = lv_image_create(widget->obj);
+      peripheral_charge_icons[i] = charge_icon;
+      lv_image_set_pos(charge_icon, i * spacing, y_center);
+      lv_image_set_src(charge_icon, &icon_lightning_24);
+
+      lv_obj_align(charge_icon, LV_ALIGN_RIGHT_MID, -6, arc_size / 2);
+      lv_obj_add_style(charge_icon, &style_charge_icon_disconnected, LV_PART_MAIN);
+      lv_obj_set_style_image_recolor_opa(charge_icon, LV_OPA_COVER, LV_PART_MAIN);
+      lv_obj_clear_flag(charge_icon, LV_OBJ_FLAG_CLICKABLE);
 
       lv_obj_t *label_box = lv_obj_create(arc);
       peripheral_label_boxes[i] = label_box;
