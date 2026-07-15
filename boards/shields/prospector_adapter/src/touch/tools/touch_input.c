@@ -23,7 +23,7 @@ LOG_MODULE_REGISTER(mk1_touch, LOG_LEVEL_INF);
 
 #define TP_MOVE_DEADZONE_PX 8
 #define TP_DTAP_MS 180 /* 2nd tap within this of the 1st = right click */
-#define TP_SCROLL_PX 18
+#define TP_SCROLL_PX 2
 
 #define TP_SENS_MAX SETTINGS_SENS_MAX
 #define TP_SENS_DEFAULT 5
