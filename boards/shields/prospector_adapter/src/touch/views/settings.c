@@ -10,12 +10,12 @@ static void tap_sens(int delta) { prospector_touchpad_sens_step(delta); build_se
 static void tap_bright(int delta) { prospector_brightness_step(delta); build_settings(); }
 static void tap_rotate(int cell) { ARG_UNUSED(cell); ui_rot = (ui_rot + 1) & 3; settings_apply_rotation(); }
 
-#define SET_BTN_SENS_PLUS 0
-#define SET_BTN_BRIGHT_PLUS 2
-#define SET_BTN_SENS_MINUS 3
-#define SET_BTN_BRIGHT_MINUS 5
-#define SET_BTN_SENS_READOUT 6
-#define SET_BTN_BRIGHT_READOUT 7
+#define SET_BTN_SENS_READOUT 0
+#define SET_BTN_BRIGHT_READOUT 2
+#define SET_BTN_SENS_PLUS 3
+#define SET_BTN_BRIGHT_PLUS 5
+#define SET_BTN_SENS_MINUS 6
+#define SET_BTN_BRIGHT_MINUS 8
 
 /* icon + number readout; buttons are recreated per build_view, but this also
    runs standalone after taps -> find existing children instead of re-adding */
@@ -42,6 +42,11 @@ static void readout_set(int idx, const lv_image_dsc_t *icon, const char *text)
       lv_obj_set_style_image_recolor(img, lv_color_hex(theme_color(THEME_PRIMARY)), LV_PART_MAIN);
       lv_obj_set_style_image_recolor_opa(img, LV_OPA_COVER, LV_PART_MAIN);
       lv_obj_move_to_index(img, 0);
+    }
+    if (lbl != NULL)
+    {
+      /* 1x1 readout cell: smaller face so icon + "100%" fit */
+      lv_obj_set_style_text_font(lbl, &lv_font_montserrat_16, LV_PART_MAIN);
     }
     lv_obj_set_flex_flow(btn, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(btn, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
@@ -82,14 +87,15 @@ static void build_settings(void)
 }
 
 static const struct page_cell settings_cells[] = {
-    {0, 0, 1, 2, NULL, &icon_plus, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, +1}},
-    {0, 2, 1, 2, NULL, &icon_up, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_home},
-    {0, 4, 1, 2, NULL, &icon_plus, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, +BRIGHTNESS_STEP}},
-    {1, 0, 1, 2, NULL, &icon_minus, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, -1}},
-    {1, 2, 1, 2, NULL, &icon_rotate, THEME_SECONDARY, ACT_CUSTOM, .arg.func = tap_rotate},
-    {1, 4, 1, 2, NULL, &icon_minus, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, -BRIGHTNESS_STEP}},
-    {2, 0, 1, 3, " ", NULL, THEME_PRIMARY, ACT_NONE},
-    {2, 3, 1, 3, " ", NULL, THEME_PRIMARY, ACT_NONE},
+    {0, 0, 1, 1, " ", NULL, THEME_PRIMARY, ACT_NONE},
+    {0, 1, 1, 1, NULL, &icon_up, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_home},
+    {0, 2, 1, 1, " ", NULL, THEME_PRIMARY, ACT_NONE},
+    {1, 0, 1, 1, NULL, &icon_plus, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, +1}},
+    {1, 1, 1, 1, NULL, &icon_rotate, THEME_SECONDARY, ACT_CUSTOM, .arg.func = tap_rotate},
+    {1, 2, 1, 1, NULL, &icon_plus, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, +BRIGHTNESS_STEP}},
+    {2, 0, 1, 1, NULL, &icon_minus, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {tap_sens, -1}},
+    {2, 1, 1, 1, NULL, &icon_theme, THEME_PRIMARY, ACT_GO_VIEW, .arg.view = &view_theme},
+    {2, 2, 1, 1, NULL, &icon_minus, THEME_FOCUS, ACT_CUSTOM_VAL, .arg.custom = {tap_bright, -BRIGHTNESS_STEP}},
     {0}
 };
 
