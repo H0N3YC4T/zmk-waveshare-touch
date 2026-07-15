@@ -72,9 +72,20 @@ static void back_to_categories(void)
   }
 }
 
+/* backgrounds store a 95% black / 5% colour tint, not the raw pastel */
+static uint32_t swatch_value(uint32_t c)
+{
+  if (swatch_cat != THEME_CAT_BACKGROUND)
+  {
+    return c;
+  }
+  return ((c >> 16 & 0xff) * 13 / 256) << 16 | ((c >> 8 & 0xff) * 13 / 256) << 8 |
+         (c & 0xff) * 13 / 256;
+}
+
 static void pick_color(int idx)
 {
-  uint32_t color = swatch_colors[idx];
+  uint32_t color = swatch_value(swatch_colors[idx]);
   if (theme_get_base(swatch_cat) != color)
   {
     theme_set_base(swatch_cat, color); /* applies live + persists */
@@ -95,7 +106,7 @@ static void build_swatch(void)
     {
       continue;
     }
-    uint32_t c = swatch_colors[i];
+    uint32_t c = swatch_colors[i]; /* face keeps the full colour */
     /* very dark swatches vanish against the background -- keep a visible rim */
     uint32_t rim = ((c >> 16 & 0xff) + (c >> 8 & 0xff) + (c & 0xff)) < 96
                        ? theme_color(THEME_MUTED)
@@ -103,7 +114,7 @@ static void build_swatch(void)
     lv_obj_set_style_border_color(b, lv_color_hex(rim), LV_PART_MAIN);
     lv_obj_set_style_bg_color(b, lv_color_mix(lv_color_hex(c), lv_color_hex(bg), 128),
                               LV_PART_MAIN);
-    if (c == current)
+    if (swatch_value(c) == current)
     {
       lv_obj_t *dot = lv_obj_create(b);
       if (dot != NULL)
