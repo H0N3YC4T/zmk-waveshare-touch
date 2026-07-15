@@ -393,6 +393,30 @@ static void update_peripheral_display(uint8_t source)
   }
 }
 
+/* portrait: the two arcs stack vertically (58x124); landscape: side by side */
+void zmk_widget_battery_circles_set_stacked(bool stacked)
+{
+  if (PERIPHERAL_COUNT != 2 || peripheral_arcs[0] == NULL)
+  {
+    return;
+  }
+  lv_obj_t *obj = lv_obj_get_parent(peripheral_arcs[0]);
+  lv_obj_set_size(obj, stacked ? 58 : 132, stacked ? 124 : 62);
+  for (int i = 0; i < 2; i++)
+  {
+    if (peripheral_arcs[i])
+    {
+      lv_obj_set_pos(peripheral_arcs[i], stacked ? 0 : i * 66, stacked ? i * 66 : 2);
+    }
+    if (peripheral_battery_labels[i] && peripheral_label_boxes[i])
+    {
+      /* align_to is one-shot -- re-anchor after the arc moves */
+      lv_obj_align_to(peripheral_battery_labels[i], peripheral_label_boxes[i],
+                      LV_ALIGN_OUT_BOTTOM_MID, 0, 3);
+    }
+  }
+}
+
 static void set_battery_level(uint8_t source, uint8_t level)
 {
   if (source >= PERIPHERAL_COUNT)

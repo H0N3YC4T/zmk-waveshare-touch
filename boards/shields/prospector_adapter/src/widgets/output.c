@@ -157,6 +157,27 @@ void zmk_widget_output_retheme(void) {
     }
 }
 
+/* portrait: full-width usb over ble over the slot row (146 wide);
+ * landscape: the original 116x62 two-row layout */
+void zmk_widget_output_set_stacked(bool stacked) {
+    struct zmk_widget_output *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        int slot_spacing = 2;
+        int width = stacked ? 146 : 116;
+        int slot_width =
+            (width - (ZMK_BLE_PROFILE_COUNT - 1) * slot_spacing) / ZMK_BLE_PROFILE_COUNT;
+        lv_obj_set_size(widget->obj, width, stacked ? 95 : 62);
+        lv_obj_set_size(widget->usb_btn, stacked ? width : 56, 29);
+        lv_obj_set_size(widget->ble_btn, stacked ? width : 56, 29);
+        lv_obj_set_pos(widget->usb_btn, 0, 0);
+        lv_obj_set_pos(widget->ble_btn, stacked ? 0 : 58, stacked ? 33 : 0);
+        for (int i = 0; i < ZMK_BLE_PROFILE_COUNT; i++) {
+            lv_obj_set_size(widget->slots[i], slot_width, 29);
+            lv_obj_set_pos(widget->slots[i], i * (slot_width + slot_spacing), stacked ? 66 : 33);
+        }
+    }
+}
+
 int zmk_widget_output_init(struct zmk_widget_output *widget, lv_obj_t *parent) {
     widget->obj = lv_obj_create(parent);
     lv_obj_set_size(widget->obj, 116, 62);

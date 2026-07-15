@@ -14,4 +14,5 @@ struct zmk_widget_output {
 
 int zmk_widget_output_init(struct zmk_widget_output *widget, lv_obj_t *parent);
 lv_obj_t *zmk_widget_output_obj(struct zmk_widget_output *widget);
+void zmk_widget_output_set_stacked(bool stacked); /* portrait column layout */
 void zmk_widget_output_retheme(void); /* re-apply themed colours in place */

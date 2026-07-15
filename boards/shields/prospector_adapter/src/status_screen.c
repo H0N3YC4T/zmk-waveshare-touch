@@ -28,8 +28,10 @@ void status_screen_reflow(void) {
         lv_obj_set_pos(zmk_widget_wpm_meter_obj(&wpm_meter_widget), 10, 40);
         zmk_widget_layer_display_set_width(&layer_display_widget, 220);
         lv_obj_set_pos(zmk_widget_layer_display_obj(&layer_display_widget), 10, 140);
-        lv_obj_set_pos(zmk_widget_output_obj(&output_widget), 62, 152);
-        lv_obj_set_pos(zmk_widget_battery_circles_obj(&battery_circles_widget), 54, 216);
+        zmk_widget_battery_circles_set_stacked(true);
+        zmk_widget_output_set_stacked(true);
+        lv_obj_set_pos(zmk_widget_battery_circles_obj(&battery_circles_widget), 10, 152);
+        lv_obj_set_pos(zmk_widget_output_obj(&output_widget), 84, 152);
     } else {
         zmk_widget_modifier_indicator_set_width(&modifier_indicator_widget, 230);
         lv_obj_set_pos(zmk_widget_modifier_indicator_obj(&modifier_indicator_widget), 25, 8);
@@ -37,6 +39,8 @@ void status_screen_reflow(void) {
         lv_obj_set_pos(zmk_widget_wpm_meter_obj(&wpm_meter_widget), 10, 42);
         zmk_widget_layer_display_set_width(&layer_display_widget, 260);
         lv_obj_set_pos(zmk_widget_layer_display_obj(&layer_display_widget), 10, 142);
+        zmk_widget_battery_circles_set_stacked(false);
+        zmk_widget_output_set_stacked(false);
         lv_obj_set_pos(zmk_widget_battery_circles_obj(&battery_circles_widget), 11, 170);
         lv_obj_set_pos(zmk_widget_output_obj(&output_widget), 148, 170);
     }
