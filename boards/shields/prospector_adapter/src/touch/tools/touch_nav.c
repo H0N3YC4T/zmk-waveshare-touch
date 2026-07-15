@@ -41,7 +41,6 @@ bool prospector_touch_has_action(int sx, int sy) {
 }
 
 
-
 void show_view(const struct view_def *v) {
     cur_view = v;
     cur_page = 0;
@@ -68,7 +67,7 @@ static void ui_timer_cb(lv_timer_t *timer) {
         int sx = (v >> 10) & 0x3FF, sy = v & 0x3FF;
         int cell = cell_from_coords(sx, sy);
         last_tap_ms = k_uptime_get();
-        
+
         void (*on_hold)(int) = cur_view->on_hold;
         if ((v & (1 << 21)) && on_hold != NULL) {
             on_hold(cell);
