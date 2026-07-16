@@ -36,11 +36,18 @@ static void open_swatch(int cat)
   show_view(&view_swatch);
 }
 
-/* one-tap return to the classic palette (same as holding the theme button) */
-static void tap_classic(int cell)
+/* one-tap preset toggle: classic pastels <-> their neon counterparts */
+static void tap_preset(int cell)
 {
   ARG_UNUSED(cell);
-  theme_reset_classic();
+  if (theme_is_classic())
+  {
+    theme_reset_vivid();
+  }
+  else
+  {
+    theme_reset_classic();
+  }
   build_view(cur_view);
 }
 
@@ -65,7 +72,7 @@ static const struct page_cell theme_p2[] = {
     {0, 1, 1, 2, "ACCEPT", NULL, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_ACCEPT}},
     {1, 1, 1, 2, "DENY", NULL, THEME_DENY, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_DENY}},
     {2, 0, 1, 1, NULL, &icon_down, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_settings},
-    {2, 1, 1, 2, "CLASSIC", NULL, THEME_MUTED, ACT_CUSTOM, .arg.func = tap_classic},
+    {2, 1, 1, 2, "PASTEL", NULL, THEME_MUTED, ACT_CUSTOM, .arg.func = tap_preset},
     {0}};
 
 static const struct page_cell *const theme_pages[] = {theme_p1, theme_p2};
@@ -84,6 +91,15 @@ static void build_theme(void)
     if (l != NULL && lv_obj_check_type(l, &lv_label_class))
     {
       lv_obj_set_style_text_font(l, &lv_font_montserrat_16, LV_PART_MAIN);
+    }
+  }
+  /* preset toggle names its destination */
+  if (cur_page == 2 && cur_view_btns[4] != NULL)
+  {
+    lv_obj_t *l = lv_obj_get_child(cur_view_btns[4], 0);
+    if (l != NULL && lv_obj_check_type(l, &lv_label_class))
+    {
+      lv_label_set_text(l, theme_is_classic() ? "VIVID" : "PASTEL");
     }
   }
 }

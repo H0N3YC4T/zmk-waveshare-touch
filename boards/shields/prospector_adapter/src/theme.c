@@ -50,6 +50,18 @@ static const enum theme_category role_cat[THEME_ROLE_COUNT] = {
     [THEME_MUTED_DIM] = THEME_CAT_BACKGROUND,
 };
 
+/* vivid preset: each classic base's neon swatch counterpart */
+static const uint32_t theme_vivid[THEME_CAT_COUNT] = {
+    [THEME_CAT_PRIMARY] = 0xc026ff,
+    [THEME_CAT_SECONDARY] = 0x2f6bff,
+    [THEME_CAT_FOCUS] = 0xffd500,
+    [THEME_CAT_ACCEPT] = 0x00e050,
+    [THEME_CAT_DENY] = 0xff3b30,
+    [THEME_CAT_INCREMENT] = 0x00e050,
+    [THEME_CAT_DECREMENT] = 0xffd500,
+    [THEME_CAT_BACKGROUND] = 0x000000,
+};
+
 /* the role holding each category's base colour */
 static const enum theme_role cat_base[THEME_CAT_COUNT] = {
     [THEME_CAT_PRIMARY] = THEME_PRIMARY,
@@ -173,6 +185,30 @@ void theme_reset_classic(void)
 #if IS_ENABLED(CONFIG_SETTINGS)
   k_work_schedule(&theme_save_work, K_SECONDS(2));
 #endif
+}
+
+void theme_reset_vivid(void)
+{
+  for (int c = 0; c < THEME_CAT_COUNT; c++)
+  {
+    theme_apply_base(c, theme_vivid[c]);
+  }
+  theme_changed();
+#if IS_ENABLED(CONFIG_SETTINGS)
+  k_work_schedule(&theme_save_work, K_SECONDS(2));
+#endif
+}
+
+bool theme_is_classic(void)
+{
+  for (int c = 0; c < THEME_CAT_COUNT; c++)
+  {
+    if (palette[cat_base[c]] != theme_classic[cat_base[c]])
+    {
+      return false;
+    }
+  }
+  return true;
 }
 
 void theme_set_base(enum theme_category cat, uint32_t base_rgb)

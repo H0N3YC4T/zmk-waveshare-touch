@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* Semantic UI colour roles. Views and widgets name the ROLE they want; the
@@ -54,6 +55,13 @@ uint32_t theme_get_base(enum theme_category cat);
 
 /* All categories back to the classic palette (applies live + persists). */
 void theme_reset_classic(void);
+
+/* All categories to the vivid preset: each classic base's neon swatch
+ * counterpart, background stays black (applies live + persists). */
+void theme_reset_vivid(void);
+
+/* true while every category base still matches the classic palette */
+bool theme_is_classic(void);
 
 /* Notified after any palette change (live set_base or boot settings load).
  * Weak no-op in theme.c; the status screen overrides it to restyle live
