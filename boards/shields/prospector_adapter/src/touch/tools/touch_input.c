@@ -93,16 +93,19 @@ enum tp_mode
   TP_PENDING,
   TP_MOTION,
   TP_SCROLL,
+  TP_HSCROLL,
   TP_DRAG
 };
 static atomic_t tp_click = ATOMIC_INIT(0);    /* 0 / MB1 / MB2: one-shot click pulse */
 static atomic_t tp_drag_cmd = ATOMIC_INIT(0); /* 0 none / 1 press-and-hold MB1 / 2 release it */
 static atomic_t tp_scroll = ATOMIC_INIT(0);   /* signed vertical wheel ticks pending */
+static atomic_t tp_hscroll = ATOMIC_INIT(0);  /* signed horizontal wheel ticks pending */
 static atomic_t tp_dx = ATOMIC_INIT(0);       /* accumulated pointer deltas (raw px) */
 static atomic_t tp_dy = ATOMIC_INIT(0);
 static int32_t tp_start_sx, tp_start_sy; /* touch-down screen coords */
 static int32_t tp_prev_sx, tp_prev_sy;   /* last sampled point while streaming motion */
 static int32_t tp_scroll_ref;            /* scroll-axis coord of the last emitted tick */
+static bool tp_scroll_axis_x;            /* scroll ref tracks sx (else sy) */
 static enum tp_mode tp_mode;             /* this touch: pending / moving / scrolling / drag */
 static bool tp_scroll_zone;              /* touch started in the scroll lane */
 static bool tp_first_tap;                /* a first tap is awaiting a possible second */
@@ -135,6 +138,7 @@ static void tp_work_handler(struct k_work *work)
   int dx = atomic_set(&tp_dx, 0); /* already sensitivity-scaled at accumulation time */
   int dy = atomic_set(&tp_dy, 0);
   int scroll = atomic_set(&tp_scroll, 0);
+  int hscroll = atomic_set(&tp_hscroll, 0);
   int click = atomic_set(&tp_click, 0);
   int drag_cmd = atomic_set(&tp_drag_cmd, 0);
   if (drag_cmd == 1)
@@ -153,9 +157,9 @@ static void tp_work_handler(struct k_work *work)
     zmk_endpoint_send_mouse_report();
     zmk_hid_mouse_movement_set(0, 0);
   }
-  if (scroll)
+  if (scroll || hscroll)
   {
-    zmk_hid_mouse_scroll_set(0, (int16_t)scroll);
+    zmk_hid_mouse_scroll_set((int16_t)hscroll, (int16_t)scroll);
     zmk_endpoint_send_mouse_report();
     zmk_hid_mouse_scroll_set(0, 0);
   }
@@ -289,10 +293,19 @@ static void touch_cb(struct input_event *evt, void *user_data)
       if (iabs32(sx - tp_start_sx) >= TP_MOVE_DEADZONE_PX ||
           iabs32(sy - tp_start_sy) >= TP_MOVE_DEADZONE_PX)
       {
-        if (tp_scroll_zone)
+        if (prospector_scrollpad_active())
+        {
+          /* whole pad scrolls; the gesture locks to its dominant axis */
+          tp_mode = (iabs32(sx - tp_start_sx) > iabs32(sy - tp_start_sy)) ? TP_HSCROLL
+                                                                          : TP_SCROLL;
+          tp_scroll_axis_x = (tp_mode == TP_HSCROLL);
+          tp_scroll_ref = tp_scroll_axis_x ? sx : sy;
+        }
+        else if (tp_scroll_zone)
         {
           tp_mode = TP_SCROLL;
-          tp_scroll_ref = (tp_rot & 1) ? sx : sy;
+          tp_scroll_axis_x = (tp_rot & 1);
+          tp_scroll_ref = tp_scroll_axis_x ? sx : sy;
         }
         else if (tp_drag_candidate)
         {
@@ -338,13 +351,13 @@ static void touch_cb(struct input_event *evt, void *user_data)
     }
     else
     {
-      int32_t s = (tp_rot & 1) ? sx : sy;
+      int32_t s = tp_scroll_axis_x ? sx : sy;
       int ds = s - tp_scroll_ref;
       if (ds >= TP_SCROLL_PX || ds <= -TP_SCROLL_PX)
       {
         int ticks = ds / TP_SCROLL_PX; /* signed */
 
-        atomic_add(&tp_scroll, -ticks);
+        atomic_add(tp_mode == TP_HSCROLL ? &tp_hscroll : &tp_scroll, -ticks);
         tp_scroll_ref += ticks * TP_SCROLL_PX;
         k_work_submit(&tp_work);
       }

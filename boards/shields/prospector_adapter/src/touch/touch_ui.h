@@ -188,6 +188,7 @@ void prospector_touchpad_sens_step(int delta);
 void prospector_touch_set_orientation(int rot);
 bool prospector_touch_tap(int sx, int sy, bool hold); /* touch_input.c -> touch_nav.c */
 bool prospector_touchpad_active(void);
+bool prospector_scrollpad_active(void);
 bool prospector_touch_has_action(int sx, int sy);
 
 /* ------------------------------- views -------------------------------- */
@@ -200,6 +201,7 @@ extern const struct view_def view_symbols;
 extern const struct view_def view_numpad;
 extern const struct view_def view_modifiers;
 extern const struct view_def view_trackpad;
+extern const struct view_def view_scrollpad;
 extern const struct view_def view_pad;
 extern const struct view_def view_calc;
 extern const struct view_def view_clipboard;

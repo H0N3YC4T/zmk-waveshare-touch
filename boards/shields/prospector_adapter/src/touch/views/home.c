@@ -21,6 +21,10 @@ static void hold_home(int cell)
   {
     show_view(&view_clipboard);
   }
+  else if (cell == 5)
+  {
+    show_view(&view_scrollpad);
+  }
   else if (cell == 4)
   {
 #if DT_NODE_EXISTS(DT_NODELABEL(bootloader))

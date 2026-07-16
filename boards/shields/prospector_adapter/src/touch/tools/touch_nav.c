@@ -13,7 +13,12 @@ __weak void prospector_touchpad_sens_step(int delta) { ARG_UNUSED(delta); }
 
 bool prospector_touchpad_active(void)
 {
-  return cur_view == &view_trackpad;
+  return cur_view == &view_trackpad || cur_view == &view_scrollpad;
+}
+
+bool prospector_scrollpad_active(void)
+{
+  return cur_view == &view_scrollpad;
 }
 
 bool prospector_touch_tap(int sx, int sy, bool hold)
