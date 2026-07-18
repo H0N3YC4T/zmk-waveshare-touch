@@ -103,10 +103,6 @@ static void init_styles(void)
 
   lv_style_init(&style_label_connected);
   lv_style_set_text_color(&style_label_connected, lv_color_hex(theme_color(THEME_BACKGROUND)));
-  lv_style_set_image_recolor(&style_charge_icon_connected, lv_color_hex(theme_color(THEME_FOCUS)));
-  lv_style_set_image_recolor(&style_charge_icon_disconnected, lv_color_hex(theme_color(THEME_SURFACE)));
-  lv_obj_report_style_change(&style_charge_icon_connected);
-  lv_obj_report_style_change(&style_charge_icon_disconnected);
 
   lv_style_init(&style_battery_label_disconnected);
   lv_style_set_text_color(&style_battery_label_disconnected, lv_color_hex(COLOR_BATTERY_DISCONNECTED_FILL));
@@ -132,7 +128,11 @@ void zmk_widget_battery_circles_retheme(void)
     return;
   }
   lv_style_set_text_color(&style_label_connected, lv_color_hex(theme_color(THEME_BACKGROUND)));
+  lv_style_set_image_recolor(&style_charge_icon_connected, lv_color_hex(theme_color(THEME_FOCUS)));
+  lv_style_set_image_recolor(&style_charge_icon_disconnected, lv_color_hex(theme_color(THEME_SURFACE)));
   lv_obj_report_style_change(&style_label_connected);
+  lv_obj_report_style_change(&style_charge_icon_connected);
+  lv_obj_report_style_change(&style_charge_icon_disconnected);
 }
 
 static float cubic_bezier_y(float t, float y1, float y2)

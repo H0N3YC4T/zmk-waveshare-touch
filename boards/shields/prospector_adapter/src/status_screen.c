@@ -72,6 +72,11 @@ void theme_changed(void)
   }
   lv_obj_set_style_bg_color(status_screen_obj, lv_color_hex(theme_color(THEME_BACKGROUND)),
                             LV_PART_MAIN);
+  if (touch_overlay != NULL)
+  {
+    lv_obj_set_style_bg_color(touch_overlay, lv_color_hex(theme_color(THEME_BACKGROUND)),
+                              LV_PART_MAIN);
+  }
   zmk_widget_wpm_meter_retheme();
   zmk_widget_modifier_indicator_retheme();
   zmk_widget_battery_circles_retheme();

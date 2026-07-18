@@ -554,7 +554,7 @@ static void tap_calc_factorial(int cell)
 
 static void hold_calc(int cell)
 {
-  if ((cur_page < 2 && cell == 3) || (cur_page == 2 && cell == 18))
+  if ((cur_page < 2 && cell == 3) || (cur_page == 2 && cell == 19))
   {
     calc_expr[0] = '\0';
     result_shown = false;

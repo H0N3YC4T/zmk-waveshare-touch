@@ -158,7 +158,7 @@ void zmk_widget_output_retheme(void) {
 }
 
 /* portrait: centred usb/ble stack (84w) between the battery arcs, full-width
- * 44px-tall slot row beneath; landscape: the original 116x62 two-row layout */
+ * 34px-tall slot row beneath; landscape: the original 116x62 two-row layout */
 void zmk_widget_output_set_stacked(bool stacked) {
     struct zmk_widget_output *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
