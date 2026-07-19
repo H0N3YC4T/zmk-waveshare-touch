@@ -72,7 +72,7 @@ static const struct page_cell theme_p2[] = {
     {0, 1, 1, 2, "ACCEPT", NULL, THEME_ACCEPT, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_ACCEPT}},
     {1, 1, 1, 2, "DENY", NULL, THEME_DENY, ACT_CUSTOM_VAL, .arg.custom = {open_swatch, THEME_CAT_DENY}},
     {2, 0, 1, 1, NULL, &icon_down, THEME_DENY, ACT_GO_VIEW, .arg.view = &view_settings},
-    {2, 1, 1, 2, "PASTEL", NULL, THEME_MUTED, ACT_CUSTOM, .arg.func = tap_preset},
+    {2, 1, 1, 2, "PASTEL", NULL, THEME_PRIMARY, ACT_CUSTOM, .arg.func = tap_preset},
     {0}};
 
 static const struct page_cell *const theme_pages[] = {theme_p1, theme_p2};
@@ -182,17 +182,16 @@ static void build_swatch(void)
   }
 }
 
-#define SWATCH(r, c, i)                                                             \
-  {                                                                                 \
-    r, c, 1, 1, " ", NULL, THEME_MUTED, ACT_CUSTOM_VAL, .arg.custom = { pick_color, \
-                                                                        i }         \
-  }
+#define SWATCH(r, c, i) \
+  { r, c, 1, 1, " ", NULL, THEME_MUTED, ACT_CUSTOM_VAL, .arg.custom = { pick_color, i }}
 
 static const struct page_cell swatch_cells[] = {
-    SWATCH(0, 0, 0), SWATCH(0, 1, 1), SWATCH(0, 2, 2), SWATCH(0, 3, 3), 
-    SWATCH(1, 0, 4), SWATCH(1, 1, 5), SWATCH(1, 2, 6), SWATCH(1, 3, 7), 
-    SWATCH(2, 0, 8), SWATCH(2, 1, 9), SWATCH(2, 2, 10), SWATCH(2, 3, 11), 
-    SWATCH(3, 0, 12), SWATCH(3, 1, 13), SWATCH(3, 2, 14), SWATCH(3, 3, 15), 
+    /* Pastel */
+    SWATCH(0, 0, 0), SWATCH(0, 1, 1), SWATCH(0, 2, 2), SWATCH(0, 3, 3),
+    SWATCH(1, 0, 4), SWATCH(1, 1, 5), SWATCH(1, 2, 6), SWATCH(1, 3, 7),
+    /* Vivid */
+    SWATCH(2, 0, 8), SWATCH(2, 1, 9), SWATCH(2, 2, 10), SWATCH(2, 3, 11),
+    SWATCH(3, 0, 12), SWATCH(3, 1, 13), SWATCH(3, 2, 14), SWATCH(3, 3, 15),
     {0}};
 
 static const struct view_def view_swatch = {

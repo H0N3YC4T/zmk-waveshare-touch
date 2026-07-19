@@ -12,9 +12,9 @@
 
 #define SCR_W 280
 #define SCR_H 240
-#define TOUCH_TIMEOUT_MS 120000     /* default idle timeout (2 min) */
-#define HOME_ALT_TIMEOUT_MS 10000   /* hold-mode home reverts after this idle */
-#define TOUCH_HOLD_MS 500           /* press-and-lift >= this = a hold, not a tap */
+#define TOUCH_TIMEOUT_MS 120000   /* default idle timeout (2 min) */
+#define HOME_ALT_TIMEOUT_MS 10000 /* hold-mode home reverts after this idle */
+#define TOUCH_HOLD_MS 500         /* press-and-lift >= this = a hold, not a tap */
 #define BRIGHTNESS_STEP 10
 
 #define SETTINGS_SENS_MAX 10
@@ -89,8 +89,8 @@ extern int cur_page;                     /* page of the paginated key screens (t
 extern uint8_t pending_mods;             /* one-shot mods, applied to the next key (touch_keys.c) */
 extern enum theme_role pending_mod_role; /* armed-mod ring colour (views/modifiers.c) */
 extern int grid_rows;                    /* current screen's grid (touch_draw.c) */
-extern int grid_cols;
-extern uint8_t ui_rot; /* 0..3 = 0/90/180/270 deg CW (touch_rotation.c) */
+extern int grid_cols;                    /* current screen's grid (touch_draw.c) */
+extern uint8_t ui_rot;                   /* 0..3 = 0/90/180/270 deg CW (touch_rotation.c) */
 
 static inline lv_coord_t scr_w(void) { return (ui_rot & 1) ? SCR_H : SCR_W; }
 static inline lv_coord_t scr_h(void) { return (ui_rot & 1) ? SCR_W : SCR_H; }
@@ -179,7 +179,7 @@ bool ui_has_action(int cell);
 
 /* touch_nav.c */
 void show_view(const struct view_def *v);
-void touch_ui_attach(lv_obj_t *screen); /* create the overlay + the drain timer */
+void touch_ui_attach(lv_obj_t *screen); /* create the overlay + drain timer */
 
 /* touch_keys.c */
 void send_key(uint32_t keycode);
@@ -209,6 +209,7 @@ bool prospector_touch_has_action(int sx, int sy);
 /* ------------------------------- views -------------------------------- */
 extern const struct view_def view_normal;
 extern const struct view_def view_home;
+extern const struct view_def view_home_alt;
 extern const struct view_def view_settings;
 extern const struct view_def view_media;
 extern const struct view_def view_media2; /* media extras (mute/stop/seek/launch) */
