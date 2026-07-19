@@ -2,8 +2,6 @@
 
 #include "../touch_ui.h"
 
-static const struct view_def view_media2;
-
 /* hold play/pause = the extras page (mute/stop/seek/player launch) */
 static void hold_media(int cell)
 {
@@ -68,7 +66,7 @@ static const struct page_cell media2_cells_portrait[] = {
     {2, 4, 1, 2, NULL, &icon_ff, THEME_INCREMENT, ACT_SEND_KEY, .arg.keycode = C_FF},
     {0}};
 
-static const struct view_def view_media2 = {
+const struct view_def view_media2 = {
     .cells = media2_cells,
     .cells_portrait = media2_cells_portrait,
 };

@@ -62,14 +62,6 @@ static lv_obj_t *draw_cell_impl(int row, int col,
   return b;
 }
 
-lv_obj_t *draw_cell(int row, int col,
-                    int w_cells,
-                    const char *text,
-                    enum theme_role accent)
-{
-  return draw_cell_impl(row, col, w_cells, 1, text, accent, 80, false);
-}
-
 lv_obj_t *draw_cell_ext(int row, int col,
                         int w_cells, int h_cells,
                         const char *text,
@@ -104,14 +96,6 @@ lv_obj_t *draw_cell_icon_ext(int row, int col,
   lv_obj_set_style_image_recolor_opa(img, LV_OPA_COVER, LV_PART_MAIN);
   lv_obj_center(img);
   return b;
-}
-
-lv_obj_t *draw_cell_icon(int row, int col,
-                         const lv_image_dsc_t *icon,
-                         const char *fallback,
-                         enum theme_role accent)
-{
-  return draw_cell_icon_ext(row, col, 1, 1, icon, fallback, accent);
 }
 
 /* recolor a cell's first child whether it is a text label or an icon image */

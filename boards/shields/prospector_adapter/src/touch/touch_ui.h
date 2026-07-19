@@ -12,10 +12,10 @@
 
 #define SCR_W 280
 #define SCR_H 240
-#define TOUCH_TIMEOUT_MS 120000 /* 2 Minute Timeout*/
-#define TOUCH_HOLD_MS 500       /* press-and-lift >= this = a hold, not a tap */
+#define TOUCH_TIMEOUT_MS 120000     /* default idle timeout (2 min) */
+#define HOME_ALT_TIMEOUT_MS 10000   /* hold-mode home reverts after this idle */
+#define TOUCH_HOLD_MS 500           /* press-and-lift >= this = a hold, not a tap */
 #define BRIGHTNESS_STEP 10
-#define KEYS_PER_PAGE 7
 
 #define SETTINGS_SENS_MAX 10
 #define SETTINGS_BRIGHT_MAX 100
@@ -73,7 +73,9 @@ struct view_def
   const struct page_cell *const *pages_portrait; /* array of paginated portrait overrides */
   uint8_t num_pages;                             /* TOTAL pages incl. the base cells page; pages[] holds N-1 */
   void (*build)(void);                           /* renderer; NULL = nothing to draw (NORMAL) */
-  bool idle_timeout;                             /* return to NORMAL after TOUCH_TIMEOUT_MS idle */
+  bool idle_timeout;                             /* leave this view after idling (see below) */
+  uint32_t timeout_ms;                           /* idle window; 0 = TOUCH_TIMEOUT_MS */
+  const struct view_def *timeout_view;           /* where idling goes; NULL = NORMAL */
   bool keeps_mods;                               /* armed one-shot mods survive entering this view */
   void (*on_hold)(int cell);                     /* long-press handler; NULL = holds act as taps */
   void (*on_enter)(void);                        /* called once when the view is shown */
@@ -138,6 +140,16 @@ extern const lv_image_dsc_t icon_rew __weak;
 extern const lv_image_dsc_t icon_ff __weak;
 extern const lv_image_dsc_t icon_music __weak;
 
+// Hold-mode (alt home) Icons
+extern const lv_image_dsc_t icon_unlock __weak;
+extern const lv_image_dsc_t icon_boot __weak;
+extern const lv_image_dsc_t icon_calc __weak;
+extern const lv_image_dsc_t icon_swap __weak;
+extern const lv_image_dsc_t icon_scroll __weak;
+extern const lv_image_dsc_t icon_modclear __weak;
+extern const lv_image_dsc_t icon_clipboard __weak;
+extern const lv_image_dsc_t icon_mixer __weak;
+
 // General Icons
 extern const lv_image_dsc_t icon_plus __weak;
 extern const lv_image_dsc_t icon_minus __weak;
@@ -156,9 +168,7 @@ extern const lv_image_dsc_t icon_right __weak;
 
 /* ------------------------------- functions -------------------------------- */
 /* touch_draw.c */
-lv_obj_t *draw_cell(int row, int col, int w_cells, const char *text, enum theme_role accent);
 lv_obj_t *draw_cell_ext(int row, int col, int w_cells, int h_cells, const char *text, enum theme_role accent, bool filled);
-lv_obj_t *draw_cell_icon(int row, int col, const lv_image_dsc_t *icon, const char *fallback, enum theme_role accent);
 lv_obj_t *draw_cell_icon_ext(int row, int col, int w_cells, int h_cells, const lv_image_dsc_t *icon, const char *fallback, enum theme_role accent);
 void cell_child_set_color(lv_obj_t *btn, enum theme_role role); /* label text or image recolor */
 
@@ -186,8 +196,8 @@ void touch_prefs_save(void);
 
 void status_screen_reflow(void);
 
-extern void prospector_brightness_step(int delta);
-extern uint8_t prospector_brightness_get(void);
+void prospector_brightness_step(int delta);
+uint8_t prospector_brightness_get(void);
 int prospector_touchpad_sens_get(void);
 void prospector_touchpad_sens_step(int delta);
 void prospector_touch_set_orientation(int rot);
@@ -201,6 +211,7 @@ extern const struct view_def view_normal;
 extern const struct view_def view_home;
 extern const struct view_def view_settings;
 extern const struct view_def view_media;
+extern const struct view_def view_media2; /* media extras (mute/stop/seek/launch) */
 extern const struct view_def view_fkeys;
 extern const struct view_def view_symbols;
 extern const struct view_def view_numpad;

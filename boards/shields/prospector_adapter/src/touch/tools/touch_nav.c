@@ -106,10 +106,13 @@ static void ui_timer_cb(lv_timer_t *timer)
     }
   }
 
-  if (cur_view->idle_timeout &&
-      (k_uptime_get() - last_tap_ms) > TOUCH_TIMEOUT_MS)
+  if (cur_view->idle_timeout)
   {
-    show_view(&view_normal);
+    uint32_t limit = cur_view->timeout_ms ? cur_view->timeout_ms : TOUCH_TIMEOUT_MS;
+    if ((k_uptime_get() - last_tap_ms) > limit)
+    {
+      show_view(cur_view->timeout_view ? cur_view->timeout_view : &view_normal);
+    }
   }
 }
 
