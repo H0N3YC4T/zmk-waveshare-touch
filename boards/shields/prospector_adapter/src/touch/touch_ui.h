@@ -210,7 +210,9 @@ bool prospector_touchpad_active(void);
 bool prospector_scrollpad_active(void);
 bool prospector_touch_has_action(int sx, int sy);
 
-/* touch_keys.c */
+/* home.c */
+void tap_home_pad(int cell);
+void tap_clear_mods(int cell);
 void tap_studio_unlock(int cell);
 void tap_bootloader(int cell);
 

@@ -77,20 +77,3 @@ void fire_pad(int idx)
 int touch_pad_count(void) { return 0; }
 void fire_pad(int idx) { ARG_UNUSED(idx); }
 #endif
-
-/* Device specific taps - home page and home_alt page */
-void tap_studio_unlock(int cell)
-{
-  ARG_UNUSED(cell);
-#if DT_NODE_EXISTS(DT_NODELABEL(studio_unlock))
-  fire_macro(DEVICE_DT_NAME(DT_NODELABEL(studio_unlock)));
-#endif
-}
-
-void tap_bootloader(int cell)
-{
-  ARG_UNUSED(cell);
-#if DT_NODE_EXISTS(DT_NODELABEL(bootloader))
-  fire_macro(DEVICE_DT_NAME(DT_NODELABEL(bootloader)));
-#endif
-}

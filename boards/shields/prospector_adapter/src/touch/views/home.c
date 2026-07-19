@@ -3,7 +3,7 @@
 #include <zephyr/device.h>
 #include "../touch_ui.h"
 
-static void tap_home_pad(int cell)
+void tap_home_pad(int cell)
 {
   if (touch_pad_count() > 0)
   {
@@ -11,11 +11,27 @@ static void tap_home_pad(int cell)
   }
 }
 
-static void tap_clear_mods(int cell)
+void tap_clear_mods(int cell)
 {
   ARG_UNUSED(cell);
   pending_mods = 0;
   build_view(cur_view);
+}
+
+void tap_studio_unlock(int cell)
+{
+  ARG_UNUSED(cell);
+#if DT_NODE_EXISTS(DT_NODELABEL(studio_unlock))
+  fire_macro(DEVICE_DT_NAME(DT_NODELABEL(studio_unlock)));
+#endif
+}
+
+void tap_bootloader(int cell)
+{
+  ARG_UNUSED(cell);
+#if DT_NODE_EXISTS(DT_NODELABEL(bootloader))
+  fire_macro(DEVICE_DT_NAME(DT_NODELABEL(bootloader)));
+#endif
 }
 
 static void hold_home(int cell)
