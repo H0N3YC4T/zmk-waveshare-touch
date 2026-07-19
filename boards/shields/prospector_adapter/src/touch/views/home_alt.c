@@ -61,7 +61,7 @@ static const struct page_cell home_alt_cells[] = {
     {2, 2, 1, 1, NULL, &icon_mixer, THEME_PRIMARY, ACT_GO_VIEW, .arg.view = &view_media2},
     {0}};
 
-static const struct view_def view_home_alt = {
+const struct view_def view_home_alt = {
     .cells = home_alt_cells,
     .keeps_mods = true,
     .on_hold = hold_home_alt,
