@@ -12,8 +12,8 @@
 
 #define SCR_W 280
 #define SCR_H 240
-#define TOUCH_TIMEOUT_MS 600000
-#define TOUCH_HOLD_MS 500 /* press-and-lift >= this = a hold, not a tap */
+#define TOUCH_TIMEOUT_MS 120000 /* 2 Minute Timeout*/
+#define TOUCH_HOLD_MS 500       /* press-and-lift >= this = a hold, not a tap */
 #define BRIGHTNESS_STEP 10
 #define KEYS_PER_PAGE 7
 
